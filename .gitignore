@@ -1,0 +1,23 @@
+## Apple
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+## Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+## Linux
+*~
+.directory
+.Trash-*
+
+# IDEs
+/.idea
+/*.iml
+/out/*
+
+/bin

@@ -1,0 +1,9 @@
+-main Runner
+
+-cp src
+-cp test
+
+-dce full
+-debug
+
+--each

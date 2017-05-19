@@ -118,6 +118,19 @@ class FileTestCase extends TestCase
 	}
 
 	/**
+	* file.resolveAbsolutePath()
+	*
+	*
+	**/
+	public function testResolveAbsolutePath() : Void
+	{
+		// FIXME: Sys.getCwd() won't work on all platforms, swap with ENV value set by test runner
+		assertEquals(Path.join([Sys.getCwd(), _root.path]), _root.resolveAbsolutePath('').path);
+		assertEquals(Path.join([Sys.getCwd(), _subFolder01.path]), _subFolder01.resolveAbsolutePath('').path);
+		assertEquals(Path.join([Sys.getCwd(), _subFile01.path]), _subFile01.resolveAbsolutePath('').path);
+	}
+
+	/**
 	* file.path
 	*
 	* Full path including directory filename and extension, seperated by system supported delimiter.
@@ -332,28 +345,79 @@ class FileTestCase extends TestCase
 	**/
 	public function testGetParent() : Void
 	{
-		// Simple null check
-		assertTrue(_root.getParent() != null);
-//		trace("");
-//		trace(_root.getParent());
-//		trace(_loremIpsumTxt.dir);
-//		trace(_loremIpsumTxt.getParent());
-//		trace(_subFolder01.getParent());
-//		trace(_subFile01.dir);
-//		trace(_subFile01.getParent());
+		try
+		{
+			_root.getParent();
+		}
+		catch(error : Any)
+		{
+			assertTrue(true);
+		}
 
-//		assertEquals(TXT, _loremIpsumTxt.ext);
-//		assertEquals(ZIP, _loremIpsumZip.ext);
-//
-//		assertEquals(TXT, _dashesInFilename.ext);
-//		assertEquals(TXT, _spacesInFilename.ext);
-//
-//		assertEquals(null, _onlyName.ext);
-//		assertEquals(ONLY_EXT, _onlyExt.ext);
-//
-//		assertEquals(null, _subFolder01.ext);
-//		assertEquals(null, _subFolder02.ext);
-//		assertEquals(TXT, _subFile01.ext);
-//		assertEquals(TXT, _subFile02.ext);
+		var absoluteRoot = _root.resolveAbsolutePath('');
+		// FIXME: Sys.getCwd() won't work on all platforms, swap with ENV value set by test runner
+		assertEquals(Path.join([Sys.getCwd()]), absoluteRoot.getParent().path);
+
+		assertEquals(_root.path, _loremIpsumTxt.getParent().path);
+		assertEquals(_root.path, _subFolder01.getParent().path);
+		assertEquals(_subFolder01.path, _subFile01.getParent().path);
+	}
+
+	/**
+	* file.getDirectoryListing(false)
+	**/
+	public function testGetDirectoryListing() : Void
+	{
+		var files = _root.getDirectoryListing();
+
+		assertTrue(files != null);
+		assertTrue(files.length == 8);
+
+		var expected = [
+			'$ROOT/$LOREM_IPSUM_TXT',
+			'$ROOT/$LOREM_IPSUM_ZIP',
+			'$ROOT/$SPACES_IN_FILENAME_TXT',
+			'$ROOT/$DASHES_IN_FILENAME_TXT',
+			'$ROOT/$ONLY_NAME',
+			'$ROOT/.$ONLY_EXT',
+			'$ROOT/$SUB_FOLDER_01',
+			'$ROOT/$SUB_FOLDER_02'
+		];
+
+		for(file in files)
+			assertTrue(expected.indexOf(file.path) != -1);
+	}
+
+	/**
+	* file.getDirectoryListing(true)
+	**/
+	public function testGetDirectoryListingRecursive() : Void
+	{
+		var files = _root.getDirectoryListing(true);
+
+		assertTrue(files != null);
+		assertTrue(files.length == 10);
+
+		var expected = [
+			'$ROOT/$LOREM_IPSUM_TXT',
+			'$ROOT/$LOREM_IPSUM_ZIP',
+			'$ROOT/$SPACES_IN_FILENAME_TXT',
+			'$ROOT/$DASHES_IN_FILENAME_TXT',
+			'$ROOT/$ONLY_NAME',
+			'$ROOT/.$ONLY_EXT',
+			'$ROOT/$SUB_FOLDER_01',
+			'$ROOT/$SUB_FOLDER_02',
+			'$ROOT/$SUB_FOLDER_01/$SUB_FILE_TXT',
+			'$ROOT/$SUB_FOLDER_02/$SUB_FILE_TXT'
+		];
+
+		for(file in files)
+			assertTrue(expected.indexOf(file.path) != -1);
+	}
+
+	private function println(v : Dynamic)
+	{
+		print(v);
+		print("\n");
 	}
 }

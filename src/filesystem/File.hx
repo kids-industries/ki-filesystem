@@ -1,5 +1,6 @@
 package filesystem;
 
+import haxe.macro.Context;
 import haxe.extern.EitherType;
 import haxe.io.Path;
 import sys.FileSystem;
@@ -87,10 +88,13 @@ class File
 	private var _flFile : FlashFile;
 	#end
 
+	/**
+	* Constructor, note that NO I/O will be performed on construction.
+	**/
 	public function new(path : String)
 	{
 		if(path == null)
-			throw 'Can\'t create File with null path';
+			throwError('Can\'t create File with null path.');
 
 		// TODO: ./ or / ?????
 		if(path == "")
@@ -144,24 +148,50 @@ class File
 	*
 	* Filenames and directory names are case-sensitive on non-Windows.
 	*
-	* IMPLICID TESTED
+	* IMPLICIDLY TESTED
 	**/
-	public function resolvePath(pathOrPaths : EitherType<String, Array<String>>) : File
+	public function resolvePath(pathOrSegments : EitherType<String, Array<String>>) : File
 	{
-		if(Std.is(pathOrPaths, String))
-			return new File(Path.join([toString(), pathOrPaths]));
+		return new File(joinPaths(pathOrSegments));
+	}
 
-		return new File(Path.join([toString()].concat(pathOrPaths)));
+	public function resolveAbsolutePath(pathOrSegments : EitherType<String, Array<String>>) : File
+	{
+		var path = joinPaths(pathOrSegments);
+
+		if(Path.isAbsolute(path))
+			throwError('Input path ($path) is already absolute. Only relative path can be resolved into absolute paths.');
+
+		#if air
+		throwNotImplemented("resolveAbsolutePath");
+		#else
+		path = FileSystem.absolutePath(path);
+		#end
+
+		return new File(path);
+	}
+
+	private function joinPaths(pathOrSegments : EitherType<String, Array<String>>) : String
+	{
+		if(Std.is(pathOrSegments, String))
+			return Path.join([path, pathOrSegments]);
+
+		return Path.join([path].concat(pathOrSegments));
 	}
 
 	/**
 	* Get the parent file instance, same as '../' for directories.
 	* Non directories will be return the parent directory.
+	*
+	* TESTED
 	**/
 	public function getParent() : File
 	{
 		// TODO: What happens when we get to the top level of a relative path?
-		return new File(Path.join([toString(), "../"]));
+		var path = Path.join([path, "../"]);
+		if(!isAbsolute && path == "")
+			throwError('Can\'t step out of CWD, use resolveAbsolutePath("../") instead.');
+		return new File(path);
 	}
 
 	public function copyTo(dest : File, overwrite : Bool = false) : Void
@@ -173,21 +203,21 @@ class File
 			dest.delete();
 
 		if(!isDirectory)
-			sys.io.File.copy(toString(), dest.toString());
+			sys.io.File.copy(path, dest.path);
 		else
 		{
 			// Create target directory
 			dest.createDirectory();
 
 			var files : Array<File> = getDirectoryListing();
-			var basePath : String = toString();
-			var targetBasePath : String = dest.toString();
+			var basePath : String = path;
+			var targetBasePath : String = dest.path;
 
 			var iL : Int = files.length;
 			for(i in 0...iL)
 			{
 				var file : File = files[i];
-				var targetPath : String = file.toString().replace(basePath, targetBasePath);
+				var targetPath : String = file.path.replace(basePath, targetBasePath);
 				var targetFile : File = new File(targetPath);
 
 				file.copyTo(targetFile, overwrite);
@@ -204,7 +234,7 @@ class File
 		if(overwrite && dest.exists)
 			dest.delete();
 
-		FileSystem.rename(toString(), dest.toString());
+		FileSystem.rename(path, dest.path);
 		#end
 	}
 
@@ -224,7 +254,7 @@ class File
 			while(files.length > 0)
 				files.pop().delete();
 
-			FileSystem.deleteDirectory(toString());
+			FileSystem.deleteDirectory(path);
 			#end
 		}
 		else
@@ -232,7 +262,7 @@ class File
 			#if air
 			_flFile.deleteFile();
 			#else
-			FileSystem.deleteFile(toString());
+			FileSystem.deleteFile(path);
 			#end
 		}
 	}
@@ -250,21 +280,21 @@ class File
 				#if air
 				_flFile.createDirectory();
 				#else
-				FileSystem.createDirectory(toString());
+				FileSystem.createDirectory(path);
 				#end
 			}
 			else
-				throw "Parent directory doesn't exist: " + toString();
+				throw "Parent directory doesn't exist: " + path;
 		}
 	}
 
 	public function getDirectoryListing(recursive : Bool = false) : Array<File>
 	{
 		if(!exists)
-			throw "Can't get directory listing on a non-existant File: " + toString();
+			throw "Can't get directory listing on a non-existant File: " + path;
 
 		if(!isDirectory)
-			throw "Can't get directory listing on a file: " + toString();
+			throw "Can't get directory listing on a file: " + path;
 
 		var paths : Array<String>;
 		var files : Array<File> = [];
@@ -276,7 +306,7 @@ class File
 		for(i in 0...iL)
 			paths.push(ff[i].url);
 		#else
-		var path : String = toString();
+		var path : String = path;
 		paths = FileSystem.readDirectory(path);
 
 		var iL : Int = paths.length;
@@ -309,7 +339,7 @@ class File
 	**/
 	public inline function clone() : File
 	{
-		return new File(toString());
+		return new File(path);
 	}
 
 	/**
@@ -325,7 +355,7 @@ class File
 		#if air
 		return _flFile.exists;
 		#else
-		return FileSystem.exists(toString());
+		return FileSystem.exists(path);
 		#end
 	}
 
@@ -337,7 +367,19 @@ class File
 		#if air
 		return _flFile.isDirectory;
 		#else
-		return FileSystem.isDirectory(toString());
+		return FileSystem.isDirectory(path);
 		#end
+	}
+
+	private static macro function throwError(msg : String)
+	{
+		return macro {
+			throw '[${Type.getClassName(File)}] $msg';
+		};
+	}
+
+	private static inline function throwNotImplemented(msg : String) : Void
+	{
+		throwError('Not Implemented: $msg');
 	}
 }

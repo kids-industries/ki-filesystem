@@ -15,6 +15,8 @@ class File
 	/**
 	* The resolved path. Note this might differ from the instanciated
 	* value based on platform.
+	*
+	* TESTED
 	**/
 	public var path(default, null) : String;
 
@@ -25,6 +27,8 @@ class File
 	*
     * If there is no file name, e.g. for ".htaccess" or "/dir/", the value
 	* is the empty String "".
+	*
+	* TESTED
 	**/
 	public var name(default, null) : String;
 
@@ -36,6 +40,8 @@ class File
 	*
 	* Does not end with a `/` or `\` separator.
 	* If the path has no directory, the value is null.
+	*
+	* TESTED
 	**/
 	public var dir(default, null) : String;
 
@@ -46,6 +52,8 @@ class File
 	* the extension.
 	*
 	* If the path has no extension, the value is null.
+	*
+	* TESTED
 	**/
 	public var ext(default, null) : String;
 
@@ -53,6 +61,8 @@ class File
 	* Checks if the file exists on disk.
 	*
 	* !!Performs IO!!
+	*
+	* TESTED
 	**/
 	public var exists(get, never) : Bool;
 
@@ -61,6 +71,8 @@ class File
 	* This value will only be true if it's an directory that exists on disk, otherwise false.
 	*
 	* !!Performs IO!!
+	*
+	* TESTED
 	**/
 	public var isDirectory(get, never) : Bool;
 

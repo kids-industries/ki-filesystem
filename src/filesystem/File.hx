@@ -155,6 +155,9 @@ class File
 		return new File(joinPaths(pathOrSegments));
 	}
 
+	/**
+	* Resolve absolute path. Same as resolvePath, but the File instance's path will be the full system path.
+	**/
 	public function resolveAbsolutePath(pathOrSegments : EitherType<String, Array<String>>) : File
 	{
 		var path = joinPaths(pathOrSegments);
@@ -171,14 +174,6 @@ class File
 		return new File(path);
 	}
 
-	private function joinPaths(pathOrSegments : EitherType<String, Array<String>>) : String
-	{
-		if(Std.is(pathOrSegments, String))
-			return Path.join([path, pathOrSegments]);
-
-		return Path.join([path].concat(pathOrSegments));
-	}
-
 	/**
 	* Get the parent file instance, same as '../' for directories.
 	* Non directories will be return the parent directory.
@@ -187,7 +182,6 @@ class File
 	**/
 	public function getParent() : File
 	{
-		// TODO: What happens when we get to the top level of a relative path?
 		var path = Path.join([path, "../"]);
 		if(!isAbsolute && path == "")
 			throwError('Can\'t step out of CWD, use resolveAbsolutePath("../") instead.');
@@ -288,13 +282,18 @@ class File
 		}
 	}
 
+	/**
+	* Get all files and folders in directory.
+	*
+	* TESTED
+	**/
 	public function getDirectoryListing(recursive : Bool = false) : Array<File>
 	{
 		if(!exists)
-			throw "Can't get directory listing on a non-existant File: " + path;
+			throwError('Can\'t get directory listing on a non-existant File: $path');
 
 		if(!isDirectory)
-			throw "Can't get directory listing on a file: " + path;
+			throwError('Can\'t get directory listing on a file: $path');
 
 		var paths : Array<String>;
 		var files : Array<File> = [];
@@ -350,6 +349,10 @@ class File
 		return path;
 	}
 
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// BOILERPLATE
+	//--------------------------------------------------------------------------------------------------------------------------------//
+
 	private function get_exists() : Bool
 	{
 		#if air
@@ -371,6 +374,27 @@ class File
 		#end
 	}
 
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// UTILS
+	//--------------------------------------------------------------------------------------------------------------------------------//
+
+	/**
+	* Join path or segements
+	**/
+	private function joinPaths(pathOrSegments : EitherType<String, Array<String>>) : String
+	{
+		if(Std.is(pathOrSegments, String))
+			return Path.join([path, pathOrSegments]);
+
+		return Path.join([path].concat(pathOrSegments));
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// ERRORS
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	/**
+	* Throw and error with a message. Generic prefix will be added.
+	**/
 	private static macro function throwError(msg : String)
 	{
 		return macro {
@@ -378,6 +402,9 @@ class File
 		};
 	}
 
+	/**
+	* Not Implemented Error.
+	**/
 	private static inline function throwNotImplemented(msg : String) : Void
 	{
 		throwError('Not Implemented: $msg');

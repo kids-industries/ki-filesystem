@@ -237,6 +237,37 @@ class FileTestCase extends TestCase
 	}
 
 	/**
+	* file.isAbsolute
+	*
+	* The file extension
+	*
+	* folder/filename.{ext}
+	**/
+	public function testIsAbsolute() : Void
+	{
+		assertFalse(_root.isAbsolute);
+
+		assertFalse(_loremIpsumTxt.isAbsolute);
+		assertFalse(_loremIpsumZip.isAbsolute);
+
+		assertFalse(_dashesInFilename.isAbsolute);
+		assertFalse(_spacesInFilename.isAbsolute);
+
+		assertFalse(_onlyName.isAbsolute);
+		assertFalse(_onlyExt.isAbsolute);
+
+		assertFalse(_subFolder01.isAbsolute);
+		assertFalse(_subFolder02.isAbsolute);
+		assertFalse(_subFile01.isAbsolute);
+		assertFalse(_subFile02.isAbsolute);
+
+		assertTrue(new File('/some/path').isAbsolute);
+		assertTrue(new File('C:/some/path').isAbsolute);
+		// TODO: handle file protocol as absolute path - TRIPLE SLASH!!
+		//assertTrue(new File('file:///some/path').isAbsolute);
+	}
+
+	/**
 	* file.exists
 	*
 	* Whether the file exists or not.
@@ -294,5 +325,35 @@ class FileTestCase extends TestCase
 		assertFalse(_nonExistantFolder.isDirectory);
 		assertFalse(_nonExistantSubFolder.isDirectory);
 		assertFalse(_nonExistantSubFile.isDirectory);
+	}
+
+	/**
+	* file.getParent()
+	**/
+	public function testGetParent() : Void
+	{
+		// Simple null check
+		assertTrue(_root.getParent() != null);
+//		trace("");
+//		trace(_root.getParent());
+//		trace(_loremIpsumTxt.dir);
+//		trace(_loremIpsumTxt.getParent());
+//		trace(_subFolder01.getParent());
+//		trace(_subFile01.dir);
+//		trace(_subFile01.getParent());
+
+//		assertEquals(TXT, _loremIpsumTxt.ext);
+//		assertEquals(ZIP, _loremIpsumZip.ext);
+//
+//		assertEquals(TXT, _dashesInFilename.ext);
+//		assertEquals(TXT, _spacesInFilename.ext);
+//
+//		assertEquals(null, _onlyName.ext);
+//		assertEquals(ONLY_EXT, _onlyExt.ext);
+//
+//		assertEquals(null, _subFolder01.ext);
+//		assertEquals(null, _subFolder02.ext);
+//		assertEquals(TXT, _subFile01.ext);
+//		assertEquals(TXT, _subFile02.ext);
 	}
 }

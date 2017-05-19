@@ -58,6 +58,13 @@ class File
 	public var ext(default, null) : String;
 
 	/**
+	* Whether the path is absolute or relative.
+	*
+	* TESTED
+	**/
+	public var isAbsolute(default, null) : Bool;
+
+	/**
 	* Checks if the file exists on disk.
 	*
 	* !!Performs IO!!
@@ -85,6 +92,10 @@ class File
 		if(path == null)
 			throw 'Can\'t create File with null path';
 
+		// TODO: ./ or / ?????
+		if(path == "")
+			path = "/";
+
 		// TODO: Check triple slash on all platforms (I think Android has an issue with this)s
 		// Ensure file:// protocol has a triple slash
 		// path = PathUtil.fixProtocolTripleSlash(path);
@@ -101,7 +112,7 @@ class File
 
 		#elseif air
 
-		if(path == "" || path == "/")
+		if(path == "/")
 			path = "app:/";
 		_flFile = new FlashFile(path);
 
@@ -112,6 +123,7 @@ class File
 		this.name = p.file;
 		this.dir = p.dir;
 		this.ext = p.ext;
+		this.isAbsolute = Path.isAbsolute(this.path);
 	}
 
 	/**
@@ -131,6 +143,8 @@ class File
 	* You should always use the forward slash (/) character as the path separator. On Windows, you can also use the backslash (\) character, but you should not. Using the backslash character can lead to applications that do not work on other platforms.
 	*
 	* Filenames and directory names are case-sensitive on non-Windows.
+	*
+	* IMPLICID TESTED
 	**/
 	public function resolvePath(pathOrPaths : EitherType<String, Array<String>>) : File
 	{
@@ -140,9 +154,14 @@ class File
 		return new File(Path.join([toString()].concat(pathOrPaths)));
 	}
 
+	/**
+	* Get the parent file instance, same as '../' for directories.
+	* Non directories will be return the parent directory.
+	**/
 	public function getParent() : File
 	{
-		return new File(Path.addTrailingSlash(Path.join([toString(), "../"])));
+		// TODO: What happens when we get to the top level of a relative path?
+		return new File(Path.join([toString(), "../"]));
 	}
 
 	public function copyTo(dest : File, overwrite : Bool = false) : Void

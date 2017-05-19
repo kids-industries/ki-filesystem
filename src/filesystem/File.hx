@@ -157,6 +157,8 @@ class File
 
 	/**
 	* Resolve absolute path. Same as resolvePath, but the File instance's path will be the full system path.
+	*
+	* TESTED
 	**/
 	public function resolveAbsolutePath(pathOrSegments : EitherType<String, Array<String>>) : File
 	{
@@ -335,6 +337,8 @@ class File
 
 	/**
 	* Create new File instance from this instance.
+	*
+	* TESTED
 	**/
 	public inline function clone() : File
 	{
@@ -343,6 +347,8 @@ class File
 
 	/**
 	* Get path as string.
+	*
+	* TESTED
 	**/
 	public inline function toString() : String
 	{

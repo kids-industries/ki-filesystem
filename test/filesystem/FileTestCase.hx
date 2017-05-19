@@ -52,6 +52,9 @@ class FileTestCase extends TestCase
 	private var _nonExistantSubFolder : File;
 	private var _nonExistantSubFile : File;
 
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// SETUP
+	//--------------------------------------------------------------------------------------------------------------------------------//
 	public override function setup() : Void
 	{
 		_root = new File(ROOT);
@@ -99,6 +102,10 @@ class FileTestCase extends TestCase
 		_nonExistantSubFile = null;
 	}
 
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// BASIC
+	//--------------------------------------------------------------------------------------------------------------------------------//
+
 	/**
 	* Are we null?
 	**/
@@ -119,8 +126,6 @@ class FileTestCase extends TestCase
 
 	/**
 	* file.resolveAbsolutePath()
-	*
-	*
 	**/
 	public function testResolveAbsolutePath() : Void
 	{
@@ -129,6 +134,66 @@ class FileTestCase extends TestCase
 		assertEquals(Path.join([Sys.getCwd(), _subFolder01.path]), _subFolder01.resolveAbsolutePath('').path);
 		assertEquals(Path.join([Sys.getCwd(), _subFile01.path]), _subFile01.resolveAbsolutePath('').path);
 	}
+
+	/**
+	* file.getParent()
+	**/
+	public function testGetParent() : Void
+	{
+		try
+		{
+			_root.getParent();
+		}
+		catch(error : Any)
+		{
+			assertTrue(true);
+		}
+
+		var absoluteRoot = _root.resolveAbsolutePath('');
+		// FIXME: Sys.getCwd() won't work on all platforms, swap with ENV value set by test runner
+		assertEquals(Path.join([Sys.getCwd()]), absoluteRoot.getParent().path);
+
+		assertEquals(_root.path, _loremIpsumTxt.getParent().path);
+		assertEquals(_root.path, _subFolder01.getParent().path);
+		assertEquals(_subFolder01.path, _subFile01.getParent().path);
+	}
+
+	/**
+	* file.toString() === file.path
+	*
+	* Ensure that path and toString are always the same
+	**/
+	public function testToString() : Void
+	{
+		assertEquals(_root.path, _root.toString());
+		assertEquals(_loremIpsumTxt.path, _loremIpsumTxt.toString());
+		assertEquals(_loremIpsumZip.path, _loremIpsumZip.toString());
+		assertEquals(_dashesInFilename.path, _dashesInFilename.toString());
+		assertEquals(_spacesInFilename.path, _spacesInFilename.toString());
+		assertEquals(_onlyName.path, _onlyName.toString());
+		assertEquals(_onlyExt.path, _onlyExt.toString());
+		assertEquals(_subFolder01.path, _subFolder01.toString());
+		assertEquals(_subFolder02.path, _subFolder02.toString());
+		assertEquals(_subFile01.path, _subFile01.toString());
+		assertEquals(_subFile02.path, _subFile02.toString());
+	}
+
+	/**
+	* file.clone()
+	**/
+	public function testClone() : Void
+	{
+		// Not Null
+		assertTrue(_root.clone() != null);
+		// New Instance
+		assertFalse(_root.clone() == _root);
+		// Same Path
+		assertEquals(_root.path, _root.clone().path);
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// PATH & PROPERTIES
+	//--------------------------------------------------------------------------------------------------------------------------------//
 
 	/**
 	* file.path
@@ -145,29 +210,22 @@ class FileTestCase extends TestCase
 		assertTrue(Std.is(_root.path, String));
 
 		// Values
-		_testPath(ROOT, _root);
+		assertEquals(ROOT, _root.path);
 
-		_testPath(Path.join([ROOT, LOREM_IPSUM_TXT]), _loremIpsumTxt);
-		_testPath(Path.join([ROOT, LOREM_IPSUM_ZIP]), _loremIpsumZip);
+		assertEquals(Path.join([ROOT, LOREM_IPSUM_TXT]), _loremIpsumTxt.path);
+		assertEquals(Path.join([ROOT, LOREM_IPSUM_ZIP]), _loremIpsumZip.path);
 
-		_testPath(Path.join([ROOT, DASHES_IN_FILENAME_TXT]), _dashesInFilename);
-		_testPath(Path.join([ROOT, SPACES_IN_FILENAME_TXT]), _spacesInFilename);
+		assertEquals(Path.join([ROOT, DASHES_IN_FILENAME_TXT]), _dashesInFilename.path);
+		assertEquals(Path.join([ROOT, SPACES_IN_FILENAME_TXT]), _spacesInFilename.path);
 
-		_testPath(Path.join([ROOT, ONLY_NAME]), _onlyName);
-		_testPath(Path.join([ROOT, '.' + ONLY_EXT]), _onlyExt);
+		assertEquals(Path.join([ROOT, ONLY_NAME]), _onlyName.path);
+		assertEquals(Path.join([ROOT, '.' + ONLY_EXT]), _onlyExt.path);
 
-		_testPath(Path.join([ROOT, SUB_FOLDER_01]), _subFolder01);
-		_testPath(Path.join([ROOT, SUB_FOLDER_02]), _subFolder02);
+		assertEquals(Path.join([ROOT, SUB_FOLDER_01]), _subFolder01.path);
+		assertEquals(Path.join([ROOT, SUB_FOLDER_02]), _subFolder02.path);
 
-		_testPath(Path.join([ROOT, SUB_FOLDER_01, SUB_FILE_TXT]), _subFile01);
-		_testPath(Path.join([ROOT, SUB_FOLDER_02, SUB_FILE_TXT]), _subFile02);
-	}
-
-	private function _testPath(expected : String, file : File) : Void
-	{
-		assertEquals(file.toString(), file.path);
-		assertEquals(expected, file.path);
-		assertEquals(expected, file.toString());
+		assertEquals(Path.join([ROOT, SUB_FOLDER_01, SUB_FILE_TXT]), _subFile01.path);
+		assertEquals(Path.join([ROOT, SUB_FOLDER_02, SUB_FILE_TXT]), _subFile02.path);
 	}
 
 	/**
@@ -309,6 +367,10 @@ class FileTestCase extends TestCase
 		assertFalse(_nonExistantSubFile.exists);
 	}
 
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// DIRECTORY
+	//--------------------------------------------------------------------------------------------------------------------------------//
+
 	/**
 	* file.isDirectory
 	*
@@ -338,29 +400,6 @@ class FileTestCase extends TestCase
 		assertFalse(_nonExistantFolder.isDirectory);
 		assertFalse(_nonExistantSubFolder.isDirectory);
 		assertFalse(_nonExistantSubFile.isDirectory);
-	}
-
-	/**
-	* file.getParent()
-	**/
-	public function testGetParent() : Void
-	{
-		try
-		{
-			_root.getParent();
-		}
-		catch(error : Any)
-		{
-			assertTrue(true);
-		}
-
-		var absoluteRoot = _root.resolveAbsolutePath('');
-		// FIXME: Sys.getCwd() won't work on all platforms, swap with ENV value set by test runner
-		assertEquals(Path.join([Sys.getCwd()]), absoluteRoot.getParent().path);
-
-		assertEquals(_root.path, _loremIpsumTxt.getParent().path);
-		assertEquals(_root.path, _subFolder01.getParent().path);
-		assertEquals(_subFolder01.path, _subFile01.getParent().path);
 	}
 
 	/**
@@ -414,6 +453,10 @@ class FileTestCase extends TestCase
 		for(file in files)
 			assertTrue(expected.indexOf(file.path) != -1);
 	}
+
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// HELPERS
+	//--------------------------------------------------------------------------------------------------------------------------------//
 
 	private function println(v : Dynamic)
 	{

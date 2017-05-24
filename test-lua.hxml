@@ -1,0 +1,10 @@
+test-each.hxml
+
+################################################
+## LUA
+################################################
+
+#### lua5.3: bin/lua/Runner.lua:223: module 'rex_pcre' not found:
+
+#-lua bin/lua/Runner.lua
+#-cmd lua5.3 bin/lua/Runner.lua

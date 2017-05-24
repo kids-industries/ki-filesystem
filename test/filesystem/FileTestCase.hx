@@ -52,6 +52,8 @@ class FileTestCase extends TestCase
 	private var _nonExistantSubFolder : File;
 	private var _nonExistantSubFile : File;
 
+	private var _playground : File;
+
 	//--------------------------------------------------------------------------------------------------------------------------------//
 	// SETUP
 	//--------------------------------------------------------------------------------------------------------------------------------//
@@ -77,10 +79,19 @@ class FileTestCase extends TestCase
 		_nonExistantFolder = _root.resolvePath(NON_EXISTANT_FOLDER);
 		_nonExistantSubFolder = _nonExistantFolder.resolvePath(NON_EXISTANT_SUB_FOLDER);
 		_nonExistantSubFile = _nonExistantSubFolder.resolvePath(NON_EXISTANT_FILE);
+
+		_playground = _root.resolvePath(['../', 'bin', 'test-data']);
 	}
 
 	public override function tearDown() : Void
 	{
+		// Try and clean up test-data after each test
+		_playground = _root.resolvePath(['../', 'bin', 'test-data']);
+		if(_playground.exists)
+			_playground.delete();
+
+		_playground = null;
+
 		_root = null;
 		_loremIpsumTxt = null;
 		_loremIpsumZip = null;
@@ -192,7 +203,7 @@ class FileTestCase extends TestCase
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//
-	// PATH & PROPERTIES
+	// PATH PROPERTIES
 	//--------------------------------------------------------------------------------------------------------------------------------//
 
 	/**
@@ -308,6 +319,32 @@ class FileTestCase extends TestCase
 	}
 
 	/**
+	* file.file
+	*
+	* The file's full name including ext
+	*
+	* folder/{name.ext}
+	**/
+	public function testFile() : Void
+	{
+		assertEquals(ROOT, _root.file);
+
+		assertEquals(LOREM_IPSUM_TXT, _loremIpsumTxt.file);
+		assertEquals(LOREM_IPSUM_ZIP, _loremIpsumZip.file);
+
+		assertEquals(DASHES_IN_FILENAME_TXT, _dashesInFilename.file);
+		assertEquals(SPACES_IN_FILENAME_TXT, _spacesInFilename.file);
+
+		assertEquals(ONLY_NAME, _onlyName.file);
+		assertEquals('.' + ONLY_EXT, _onlyExt.file);
+
+		assertEquals(SUB_FOLDER_01, _subFolder01.file);
+		assertEquals(SUB_FOLDER_02, _subFolder02.file);
+		assertEquals(SUB_FILE_TXT, _subFile01.file);
+		assertEquals(SUB_FILE_TXT, _subFile02.file);
+	}
+
+	/**
 	* file.isAbsolute
 	*
 	* The file extension
@@ -338,6 +375,10 @@ class FileTestCase extends TestCase
 		//assertTrue(new File('file:///some/path').isAbsolute);
 	}
 
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// READ ONLY I/O
+	//--------------------------------------------------------------------------------------------------------------------------------//
+
 	/**
 	* file.exists
 	*
@@ -366,10 +407,6 @@ class FileTestCase extends TestCase
 		assertFalse(_nonExistantSubFolder.exists);
 		assertFalse(_nonExistantSubFile.exists);
 	}
-
-	//--------------------------------------------------------------------------------------------------------------------------------//
-	// DIRECTORY
-	//--------------------------------------------------------------------------------------------------------------------------------//
 
 	/**
 	* file.isDirectory
@@ -452,6 +489,171 @@ class FileTestCase extends TestCase
 
 		for(file in files)
 			assertTrue(expected.indexOf(file.path) != -1);
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// READ/WRITE I/O
+	//--------------------------------------------------------------------------------------------------------------------------------//
+
+	/**
+	* file.createDirectory(true|false)
+	**/
+	public function testCreateDirectory() : Void
+	{
+		// CREATE
+		assertFalse(_playground.exists);
+
+		_playground.createDirectory();
+
+		assertTrue(_playground.exists);
+		assertTrue(_playground.isDirectory);
+
+		var subFolder01 = _playground.resolvePath('folder-01');
+		var subFolder02 = subFolder01.resolvePath('folder 02');
+		var subFolder03 = subFolder02.resolvePath('folder_03');
+
+		assertFalse(subFolder01.exists);
+		assertFalse(subFolder02.exists);
+		assertFalse(subFolder03.exists);
+
+		subFolder03.createDirectory(true);
+
+		assertTrue(subFolder01.exists);
+		assertTrue(subFolder02.exists);
+		assertTrue(subFolder03.exists);
+
+		assertTrue(subFolder01.isDirectory);
+		assertTrue(subFolder02.isDirectory);
+		assertTrue(subFolder03.isDirectory);
+	}
+
+	/**
+	* file.copyTo()
+	**/
+	public function testCopyTo() : Void
+	{
+		// CREATE
+		var file = _playground.resolvePath(LOREM_IPSUM_TXT);
+		var subFolder = _playground.resolvePath(SUB_FOLDER_01);
+		var subFile = subFolder.resolvePath(SUB_FILE_TXT);
+
+		assertFalse(_playground.exists);
+		assertFalse(file.exists);
+		assertFalse(subFolder.exists);
+		assertFalse(subFile.exists);
+
+		// Single file copyTo
+		_loremIpsumTxt.copyTo(file);
+		_subFile01.copyTo(subFile);
+
+		assertTrue(_playground.exists);
+		assertTrue(_playground.isDirectory);
+		assertTrue(file.exists);
+		assertTrue(subFolder.exists);
+		assertTrue(subFolder.isDirectory);
+		assertTrue(subFile.exists);
+
+		// Recursive copyTo
+		_root.copyTo(_playground);
+
+		var paths = [
+			'$LOREM_IPSUM_TXT',
+			'$LOREM_IPSUM_ZIP',
+			'$SPACES_IN_FILENAME_TXT',
+			'$DASHES_IN_FILENAME_TXT',
+			'$ONLY_NAME',
+			'.$ONLY_EXT',
+			'$SUB_FOLDER_01',
+			'$SUB_FOLDER_02',
+			'$SUB_FOLDER_01/$SUB_FILE_TXT',
+			'$SUB_FOLDER_02/$SUB_FILE_TXT'
+		];
+
+		for(path in paths)
+			assertTrue(_playground.resolvePath(path).exists);
+
+		assertTrue(_playground.resolvePath(SUB_FOLDER_02).isDirectory);
+
+		// TODO: Validate contents of the copied files
+	}
+
+	/**
+	* file.copyInto()
+	**/
+	public function testCopyInto() : Void
+	{
+		// CREATE
+		var file = _playground.resolvePath(LOREM_IPSUM_TXT);
+		var subFolder = _playground.resolvePath(SUB_FOLDER_01);
+		var subFile = subFolder.resolvePath(SUB_FILE_TXT);
+
+		assertFalse(_playground.exists);
+		assertFalse(file.exists);
+		assertFalse(subFolder.exists);
+		assertFalse(subFile.exists);
+
+		// Single file copyTo
+		_loremIpsumTxt.copyInto(_playground);
+		_subFile01.copyInto(subFolder);
+
+		assertTrue(_playground.exists);
+		assertTrue(_playground.isDirectory);
+		assertTrue(file.exists);
+		assertTrue(subFolder.exists);
+		assertTrue(subFolder.isDirectory);
+		assertTrue(subFile.exists);
+
+		// Recursive copyTo
+		_root.copyInto(_playground.getParent());
+
+		var paths = [
+			'$LOREM_IPSUM_TXT',
+			'$LOREM_IPSUM_ZIP',
+			'$SPACES_IN_FILENAME_TXT',
+			'$DASHES_IN_FILENAME_TXT',
+			'$ONLY_NAME',
+			'.$ONLY_EXT',
+			'$SUB_FOLDER_01',
+			'$SUB_FOLDER_02',
+			'$SUB_FOLDER_01/$SUB_FILE_TXT',
+			'$SUB_FOLDER_02/$SUB_FILE_TXT'
+		];
+
+		for(path in paths)
+			assertTrue(_playground.resolvePath(path).exists);
+
+		assertTrue(_playground.resolvePath(SUB_FOLDER_02).isDirectory);
+
+		// TODO: Validate contents of the copied files
+	}
+
+	/**
+	* file.moveTo()
+	**/
+	public function testMoveTo() : Void
+	{
+		// Create a working copy first
+		_root.copyTo(_playground);
+
+		var file = _playground.resolvePath(LOREM_IPSUM_TXT);
+		var fileTarget = _playground.resolvePath('new-file.txt');
+
+		assertFalse(fileTarget.exists);
+
+		file.moveTo(fileTarget);
+
+		assertFalse(file.exists);
+		assertTrue(fileTarget.exists);
+
+		var folder = _playground.resolvePath(SUB_FOLDER_01);
+		var folderTarget = _playground.resolvePath('new-folder');
+
+		assertFalse(folderTarget.exists);
+
+		folder.moveTo(folderTarget);
+
+		assertFalse(folder.exists);
+		assertTrue(folderTarget.exists);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//

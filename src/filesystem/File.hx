@@ -1,6 +1,5 @@
 package filesystem;
 
-import haxe.macro.Context;
 import haxe.extern.EitherType;
 import haxe.io.Path;
 import sys.FileSystem;
@@ -22,7 +21,7 @@ class File
 	public var path(default, null) : String;
 
 	/**
-	* The file name.
+	* The file's name without extension.
 	*
     * This is the part of the part between the directory and the extension.
 	*
@@ -57,6 +56,13 @@ class File
 	* TESTED
 	**/
 	public var ext(default, null) : String;
+
+	/**
+	* The full file name, including extension.
+	*
+	* TESTED
+	**/
+	public var file(default, null) : String;
 
 	/**
 	* Whether the path is absolute or relative.
@@ -127,6 +133,7 @@ class File
 		this.name = p.file;
 		this.dir = p.dir;
 		this.ext = p.ext;
+		this.file = name + (ext == null ? '' : '.$ext');
 		this.isAbsolute = Path.isAbsolute(this.path);
 	}
 
@@ -190,6 +197,14 @@ class File
 		return new File(path);
 	}
 
+	/**
+	* Copies the file or directory at the location specified by this File object
+	* to the location specified by the dest parameter. The copy process creates
+	* any required parent directories (if possible). When overwriting files
+	* using copyTo(), the file attributes are also overwritten.
+	*
+	* TESTED
+	**/
 	public function copyTo(dest : File, overwrite : Bool = false) : Void
 	{
 		#if air
@@ -199,21 +214,19 @@ class File
 			dest.delete();
 
 		if(!isDirectory)
+		{
+			dest.getParent().createDirectory(true);
 			sys.io.File.copy(path, dest.path);
+		}
 		else
 		{
-			// Create target directory
-			dest.createDirectory();
-
 			var files : Array<File> = getDirectoryListing();
-			var basePath : String = path;
-			var targetBasePath : String = dest.path;
 
 			var iL : Int = files.length;
 			for(i in 0...iL)
 			{
 				var file : File = files[i];
-				var targetPath : String = file.path.replace(basePath, targetBasePath);
+				var targetPath : String = file.path.replace(path, dest.path);
 				var targetFile : File = new File(targetPath);
 
 				file.copyTo(targetFile, overwrite);
@@ -222,6 +235,31 @@ class File
 		#end
 	}
 
+	/**
+	* Same as copyTo, expect the target must a be a directory and current 'file' name is retained.
+	*
+	* /directory/file.ext -> /other/directory/elsewhere
+	* Results in file.ext to be cloned to /other/directory/elsewhere/file.ext
+	* Same goes for directories
+	*
+	* /source/stuff -> /new/location
+	* Results in 'stuff' to be cloned to /new/location/stuff
+	*
+	* TESTED
+	**/
+	public function copyInto(directory : File, overwrite : Bool = false) : Void
+	{
+		if(!overwrite && directory.exists && !directory.isDirectory)
+			throwError('Can\'t copy into target existing file.');
+
+		copyTo(directory.resolvePath(file), overwrite);
+	}
+
+	/**
+	* Move to new location.
+	*
+	* TESTED
+	**/
 	public function moveTo(dest : File, overwrite : Bool = false) : Void
 	{
 		#if air
@@ -234,6 +272,11 @@ class File
 		#end
 	}
 
+	/**
+	* Deletes file or directory recursively.
+	*
+	* TESTED
+	**/
 	public function delete() : Void
 	{
 		if(!exists)
@@ -263,6 +306,13 @@ class File
 		}
 	}
 
+	/**
+	* Creates directory optionally with parent directories as well.
+	*
+	* No action is taken if the directory exists.
+	*
+	* TESTED
+	**/
 	public function createDirectory(andParents : Bool = false) : Void
 	{
 		if(!exists)
@@ -280,7 +330,7 @@ class File
 				#end
 			}
 			else
-				throw "Parent directory doesn't exist: " + path;
+				throwError('Parent directory doesn\'t exist: $path');
 		}
 	}
 

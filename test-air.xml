@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://ns.adobe.com/air/application/24.0">
+
+    <name>Runner</name>
+    <id>runner</id>
+    <versionNumber>1.0.0</versionNumber>
+    <versionLabel>1.0.0</versionLabel>
+    <filename>runner</filename>
+
+    <initialWindow>
+        <content>runner.swf</content>
+        <aspectRatio>landscape</aspectRatio>
+        <fullScreen>false</fullScreen>
+        <visible>false</visible>
+    </initialWindow>
+
+    <supportedProfiles>desktop</supportedProfiles>
+</application>

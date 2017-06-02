@@ -2,7 +2,10 @@ package filesystem;
 
 import haxe.extern.EitherType;
 import haxe.io.Path;
+
+#if !air
 import sys.FileSystem;
+#end
 
 using StringTools;
 
@@ -116,7 +119,7 @@ class File
 
 		var p = new Path(path);
 
-		#if (cpp || cs || hl || java || lua || macro || neko || php || python)
+		#if (cpp || cs || hl || java || lua || neko || php || python || macro)
 
 		this.path = p.toString();
 

@@ -16,5 +16,11 @@ class Runner
 		runner.run();
 
 		trace("---------------------------------------");
+		trace("-------------- COVERAGE ---------------");
+		trace("---------------------------------------");
+
+		mcover.coverage.MCoverage.getLogger().report();
+
+		Sys.exit(runner.result.success ? 0 : 1);
 	}
 }

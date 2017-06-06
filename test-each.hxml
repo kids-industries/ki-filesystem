@@ -3,7 +3,7 @@
 -cp src
 -cp test
 
--dce full
--debug
+-lib mcover
+--macro mcover.MCover.coverage(['filesystem'], ['src'], null)
 
---each
+-dce full

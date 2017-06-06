@@ -20,4 +20,6 @@ $RECYCLE.BIN/
 /*.iml
 /out/*
 
+/.temp
 /bin
+/report

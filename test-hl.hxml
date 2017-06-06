@@ -5,4 +5,4 @@ test-each.hxml
 ################################################
 
 -hl bin/hl/Runner.hl
-#-cmd hl bin/hl/Runner.hl
+-cmd hl bin/hl/Runner.hl

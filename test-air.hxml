@@ -5,5 +5,8 @@ test-each.hxml
 ################################################
 
 -D air
+-swf-version 24
+-debug
 
 -swf bin/air/runner.swf
+-cmd cp test-air.xml bin/air/ && cp -r test-data bin/air/ && cd bin/air/ && adl test-air.xml

@@ -5,7 +5,7 @@ import haxe.unit.TestCase;
 
 class FileTestCase extends TestCase
 {
-	private static inline var ROOT : String = 'test-data';
+	private static inline var ROOT : String = #if air 'app:/' + #end 'test-data';
 
 	private static inline var LOREM_IPSUM : String = 'Lorem Ipsum';
 	private static inline var LOREM_IPSUM_TXT : String = LOREM_IPSUM + '.' + TXT;
@@ -80,13 +80,21 @@ class FileTestCase extends TestCase
 		_nonExistantSubFolder = _nonExistantFolder.resolvePath(NON_EXISTANT_SUB_FOLDER);
 		_nonExistantSubFile = _nonExistantSubFolder.resolvePath(NON_EXISTANT_FILE);
 
+		#if air
+		_playground = new File('app-storage:/test-data');
+		#else
 		_playground = _root.resolvePath(['../', 'bin', 'test-data']);
+		#end
 	}
 
 	public override function tearDown() : Void
 	{
 		// Try and clean up test-data after each test
+		#if air
+		_playground = new File('app-storage:/test-data');
+		#else
 		_playground = _root.resolvePath(['../', 'bin', 'test-data']);
+		#end
 		if(_playground.exists)
 			_playground.delete();
 
@@ -140,10 +148,16 @@ class FileTestCase extends TestCase
 	**/
 	public function testResolveAbsolutePath() : Void
 	{
-		// FIXME: Sys.getCwd() won't work on all platforms, swap with ENV value set by test runner
-		assertEquals(Path.join([Sys.getCwd(), _root.path]), _root.resolveAbsolutePath('').path);
-		assertEquals(Path.join([Sys.getCwd(), _subFolder01.path]), _subFolder01.resolveAbsolutePath('').path);
-		assertEquals(Path.join([Sys.getCwd(), _subFile01.path]), _subFile01.resolveAbsolutePath('').path);
+		var cwd = getCWD();
+
+		// AIR paths are always absolute, so don't prefix the protocal twice
+		#if air
+		cwd = "";
+		#end
+
+		assertEquals(Path.join([cwd, _root.path]), _root.resolveAbsolutePath('').path);
+		assertEquals(Path.join([cwd, _subFolder01.path]), _subFolder01.resolveAbsolutePath('').path);
+		assertEquals(Path.join([cwd, _subFile01.path]), _subFile01.resolveAbsolutePath('').path);
 	}
 
 	/**
@@ -161,8 +175,8 @@ class FileTestCase extends TestCase
 		}
 
 		var absoluteRoot = _root.resolveAbsolutePath('');
-		// FIXME: Sys.getCwd() won't work on all platforms, swap with ENV value set by test runner
-		assertEquals(Path.join([Sys.getCwd()]), absoluteRoot.getParent().path);
+		// FIXME: getCWD() won't work on all platforms, swap with ENV value set by test runner
+		assertEquals(Path.join([getCWD()]), absoluteRoot.getParent().path);
 
 		assertEquals(_root.path, _loremIpsumTxt.getParent().path);
 		assertEquals(_root.path, _subFolder01.getParent().path);
@@ -248,7 +262,7 @@ class FileTestCase extends TestCase
 	**/
 	public function testName() : Void
 	{
-		assertEquals(ROOT, _root.name);
+		assertEquals(ROOT.split('/').pop(), _root.name);
 
 		assertEquals(LOREM_IPSUM, _loremIpsumTxt.name);
 		assertEquals(LOREM_IPSUM, _loremIpsumZip.name);
@@ -327,7 +341,7 @@ class FileTestCase extends TestCase
 	**/
 	public function testFile() : Void
 	{
-		assertEquals(ROOT, _root.file);
+		assertEquals(ROOT.split('/').pop(), _root.file);
 
 		assertEquals(LOREM_IPSUM_TXT, _loremIpsumTxt.file);
 		assertEquals(LOREM_IPSUM_ZIP, _loremIpsumZip.file);
@@ -353,26 +367,33 @@ class FileTestCase extends TestCase
 	**/
 	public function testIsAbsolute() : Void
 	{
-		assertFalse(_root.isAbsolute);
+		// All AIR paths are absolute
+		var assertBool = #if air assertTrue #else assertFalse #end;
 
-		assertFalse(_loremIpsumTxt.isAbsolute);
-		assertFalse(_loremIpsumZip.isAbsolute);
+		assertBool(_root.isAbsolute);
 
-		assertFalse(_dashesInFilename.isAbsolute);
-		assertFalse(_spacesInFilename.isAbsolute);
+		assertBool(_loremIpsumTxt.isAbsolute);
+		assertBool(_loremIpsumZip.isAbsolute);
 
-		assertFalse(_onlyName.isAbsolute);
-		assertFalse(_onlyExt.isAbsolute);
+		assertBool(_dashesInFilename.isAbsolute);
+		assertBool(_spacesInFilename.isAbsolute);
 
-		assertFalse(_subFolder01.isAbsolute);
-		assertFalse(_subFolder02.isAbsolute);
-		assertFalse(_subFile01.isAbsolute);
-		assertFalse(_subFile02.isAbsolute);
+		assertBool(_onlyName.isAbsolute);
+		assertBool(_onlyExt.isAbsolute);
+
+		assertBool(_subFolder01.isAbsolute);
+		assertBool(_subFolder02.isAbsolute);
+		assertBool(_subFile01.isAbsolute);
+		assertBool(_subFile02.isAbsolute);
 
 		assertTrue(new File('/some/path').isAbsolute);
+
+		// AIR can't handle these paths
+		#if !air
 		assertTrue(new File('C:/some/path').isAbsolute);
 		// TODO: handle file protocol as absolute path - TRIPLE SLASH!!
 		//assertTrue(new File('file:///some/path').isAbsolute);
+		#end
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//
@@ -554,7 +575,7 @@ class FileTestCase extends TestCase
 		assertTrue(subFile.exists);
 
 		// Recursive copyTo
-		_root.copyTo(_playground);
+		_root.copyTo(_playground, true);
 
 		var paths = [
 			'$LOREM_IPSUM_TXT',
@@ -604,7 +625,7 @@ class FileTestCase extends TestCase
 		assertTrue(subFile.exists);
 
 		// Recursive copyTo
-		_root.copyInto(_playground.getParent());
+		_root.copyInto(_playground.getParent(), true);
 
 		var paths = [
 			'$LOREM_IPSUM_TXT',
@@ -664,5 +685,16 @@ class FileTestCase extends TestCase
 	{
 		print(v);
 		print("\n");
+	}
+
+	private function getCWD() : String
+	{
+		#if (cpp || cs || hl || java || lua || neko || php || python || macro)
+		return Sys.getCwd();
+		#elseif air
+		return "app:/";
+		#else
+		throw "Can't get working directory of unknow platform.";
+		#end
 	}
 }

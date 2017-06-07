@@ -3,7 +3,7 @@ package filesystem;
 import haxe.extern.EitherType;
 import haxe.io.Path;
 
-#if !air
+#if (!air || macro)
 import sys.FileSystem;
 #end
 
@@ -107,7 +107,17 @@ class File
 
 		// TODO: ./ or / ?????
 		if(path == "")
+		{
+			#if air
+			path = 'app:/';
+			#else
 			path = "/";
+			#end
+		}
+		#if air
+		else if(path.startsWith("/"))
+			path = path.substr(1);
+		#end
 
 		// TODO: Check triple slash on all platforms (I think Android has an issue with this)s
 		// Ensure file:// protocol has a triple slash
@@ -118,26 +128,33 @@ class File
 		// path = PathUtil.escapeSpaces(path);
 
 		var p = new Path(path);
-
-		#if (cpp || cs || hl || java || lua || neko || php || python || macro)
-
-		this.path = p.toString();
-
-		#elseif air
-
-		if(path == "/")
-			path = "app:/";
-		_flFile = new FlashFile(path);
-
-		this.path = _flFile.url;
-
-		#end
-
 		this.name = p.file;
 		this.dir = p.dir;
 		this.ext = p.ext;
 		this.file = name + (ext == null ? '' : '.$ext');
-		this.isAbsolute = Path.isAbsolute(this.path);
+
+		#if (!macro && air)
+
+		// Ensure paths are always absolute
+		var proto = null;
+		var protoPattern = ~/^(.*):\//gi;
+		if(!protoPattern.match(path))
+			path = 'app:/$path';
+		else
+			proto = protoPattern.matched(1);
+
+		_flFile = new FlashFile(path);
+
+		this.path = _flFile.url.urlDecode();
+
+		if(proto != null && this.dir == '$proto:')
+			this.dir = null;
+
+		#else
+		this.path = p.toString();
+		#end
+
+		this.isAbsolute = #if air true; #else Path.isAbsolute(this.path); #end
 	}
 
 	/**
@@ -172,18 +189,16 @@ class File
 	**/
 	public function resolveAbsolutePath(pathOrSegments : EitherType<String, Array<String>>) : File
 	{
+		#if (!macro && air)
+		return resolvePath(pathOrSegments);
+		#else
 		var path = joinPaths(pathOrSegments);
 
 		if(Path.isAbsolute(path))
 			throwError('Input path ($path) is already absolute. Only relative path can be resolved into absolute paths.');
 
-		#if air
-		throwNotImplemented("resolveAbsolutePath");
-		#else
-		path = FileSystem.absolutePath(path);
+		return new File(FileSystem.absolutePath(path));
 		#end
-
-		return new File(path);
 	}
 
 	/**
@@ -210,16 +225,22 @@ class File
 	**/
 	public function copyTo(dest : File, overwrite : Bool = false) : Void
 	{
-		#if air
-		_flFile.copyTo(dest._flFile, overwrite);
-		#else
-		if(overwrite && dest.exists)
-			dest.delete();
-
 		if(!isDirectory)
 		{
+			if(dest.exists)
+			{
+				if(!overwrite)
+					throwError('Unable to copy onto existing file: ${dest.path}.');
+				else
+					dest.delete();
+			}
+
+			#if (!macro && air)
+			_flFile.copyTo(dest._flFile, false);
+			#else
 			dest.getParent().createDirectory(true);
 			sys.io.File.copy(path, dest.path);
+			#end
 		}
 		else
 		{
@@ -235,7 +256,6 @@ class File
 				file.copyTo(targetFile, overwrite);
 			}
 		}
-		#end
 	}
 
 	/**
@@ -265,7 +285,7 @@ class File
 	**/
 	public function moveTo(dest : File, overwrite : Bool = false) : Void
 	{
-		#if air
+		#if (!macro && air)
 		_flFile.moveTo(dest._flFile, overwrite);
 		#else
 		if(overwrite && dest.exists)
@@ -287,7 +307,7 @@ class File
 
 		if(isDirectory)
 		{
-			#if air
+			#if (!macro && air)
 			_flFile.deleteDirectory(true);
 			#else
 			var files : Array<File> = getDirectoryListing(false);
@@ -301,7 +321,7 @@ class File
 		}
 		else
 		{
-			#if air
+			#if (!macro && air)
 			_flFile.deleteFile();
 			#else
 			FileSystem.deleteFile(path);
@@ -326,7 +346,7 @@ class File
 
 			if(parent.exists)
 			{
-				#if air
+				#if (!macro && air)
 				_flFile.createDirectory();
 				#else
 				FileSystem.createDirectory(path);
@@ -353,12 +373,12 @@ class File
 		var paths : Array<String>;
 		var files : Array<File> = [];
 
-		#if air
+		#if (!macro && air)
 		paths = [];
 		var ff : Array<FlashFile> = _flFile.getDirectoryListing();
 		var iL : Int = ff.length;
 		for(i in 0...iL)
-			paths.push(ff[i].url);
+			paths.push(ff[i].url.urlDecode());
 		#else
 		var path : String = path;
 		paths = FileSystem.readDirectory(path);
@@ -414,7 +434,7 @@ class File
 
 	private function get_exists() : Bool
 	{
-		#if air
+		#if (!macro && air)
 		return _flFile.exists;
 		#else
 		return FileSystem.exists(path);
@@ -426,7 +446,7 @@ class File
 		if(!exists)
 			return false;
 
-		#if air
+		#if (!macro && air)
 		return _flFile.isDirectory;
 		#else
 		return FileSystem.isDirectory(path);

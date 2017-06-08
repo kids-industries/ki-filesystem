@@ -1,0 +1,15 @@
+{
+  "name": "ki-filesystem",
+  "url": "ssh://git@phabricator.kidsindustries.com/diffusion/109/hx-ki-filesystem.git",
+  "license": "proprietary",
+  "tags": [],
+  "description": "Kids Industries - haxe filesystem",
+  "version": "0.7.0",
+  "classPath": "src/",
+  "releasenote": "Basic support.",
+  "contributors": [
+    "Matan Uberstein"
+  ],
+  "dependencies": {
+  }
+}

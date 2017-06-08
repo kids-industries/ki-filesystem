@@ -1,0 +1,666 @@
+{
+  "defineCombinations": [],
+  "defaultSeverity": "WARNING",
+  "baseDefines": [],
+  "exclude": {
+    "all" : [
+      "flash.filesystem"
+    ]
+  },
+  "checks": [
+    {
+      "type": "IndentationCharacter",
+      "props": {
+        "character": "tab",
+        "ignorePattern": "^$",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "TabForAligning",
+      "props": {
+        "ignorePattern": "^$",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "LeftCurly",
+      "props": {
+        "tokens": [
+          "CLASS_DEF",
+          "ENUM_DEF",
+          "ABSTRACT_DEF",
+          "INTERFACE_DEF",
+          "FUNCTION",
+          "FOR",
+          "IF",
+          "WHILE",
+          "SWITCH",
+          "TRY",
+          "CATCH"
+        ],
+        "ignoreEmptySingleline": true,
+        "option": "nl",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "LeftCurly",
+      "props": {
+        "tokens": [
+          "TYPEDEF_DEF",
+          "OBJECT_DECL"
+        ],
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "RightCurly",
+      "props": {
+        "tokens": [
+          "CLASS_DEF",
+          "ENUM_DEF",
+          "ABSTRACT_DEF",
+          "TYPEDEF_DEF",
+          "INTERFACE_DEF",
+          "FOR",
+          "IF",
+          "WHILE",
+          "SWITCH",
+          "TRY",
+          "CATCH"
+        ],
+        "option": "aloneorsingle",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "RightCurly",
+      "props": {
+        "tokens": [
+          "FUNCTION",
+          "OBJECT_DECL"
+        ],
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "EmptyBlock",
+      "props": {
+        "tokens": [
+          "CLASS_DEF",
+          "ENUM_DEF",
+          "ABSTRACT_DEF",
+          "TYPEDEF_DEF",
+          "INTERFACE_DEF",
+          "FUNCTION",
+          "FOR",
+          "IF",
+          "WHILE",
+          "SWITCH",
+          "TRY",
+          "CATCH"
+        ],
+        "option": "empty",
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "EmptyBlock",
+      "props": {
+        "tokens": [
+          "OBJECT_DECL"
+        ],
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "NeedBraces",
+      "props": {
+        "allowSingleLineStatement": true,
+        "tokens": [
+          "FOR",
+          "IF",
+          "ELSE_IF",
+          "WHILE",
+          "DO_WHILE"
+        ],
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "MagicNumber",
+      "props": {
+        "ignoreNumbers": [
+          -1,
+          0,
+          1,
+          2
+        ],
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "Return",
+      "props": {
+        "allowEmptyReturn": true,
+        "enforceReturnType": true,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "RedundantModifier",
+      "props": {
+        "enforcePublicPrivate": true,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "EmptyLines",
+      "props": {
+        "max": 1,
+        "requireEmptyLineAfterPackage": true,
+        "requireEmptyLineAfterInterface": true,
+        "requireEmptyLineAfterAbstract": true,
+        "allowEmptyLineAfterSingleLineComment": true,
+        "requireEmptyLineAfterClass": true,
+        "allowEmptyLineAfterMultiLineComment": true,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "ModifierOrder",
+      "props": {
+        "modifiers": [
+          "OVERRIDE",
+          "PUBLIC_PRIVATE",
+          "STATIC",
+          "INLINE",
+          "MACRO",
+          "DYNAMIC"
+        ],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "SeparatorWhitespace",
+      "props": {
+        "commaPolicy": "after",
+        "semicolonPolicy": "ignore",
+        "dotPolicy": "none",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "Dynamic",
+      "props": {
+        "severity": "WARNING"
+      }
+    },
+    {
+      "type": "ArrayLiteral",
+      "props": {
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "AvoidInlineConditionals",
+      "props": {
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "FileLength",
+      "props": {
+        "max": 2000,
+        "severity": "WARNING"
+      }
+    },
+    {
+      "type": "CyclomaticComplexity",
+      "props": {
+        "thresholds": [
+          {
+            "complexity": 20,
+            "severity": "WARNING"
+          },
+          {
+            "complexity": 25,
+            "severity": "ERROR"
+          }
+        ]
+      }
+    },
+    {
+      "type": "ParameterNumber",
+      "props": {
+        "max": 7,
+        "severity": "ERROR",
+        "ignoreOverriddenMethods": true
+      }
+    },
+    {
+      "type": "LineLength",
+      "props": {
+        "max": 160,
+        "ignorePattern": "^$",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "MethodLength",
+      "props": {
+        "max": 150,
+        "severity": "WARNING"
+      }
+    },
+    {
+      "type": "MethodCount",
+      "props": {
+        "maxPrivate": 100,
+        "maxPublic": 100,
+        "severity": "ERROR",
+        "maxTotal": 100
+      }
+    },
+    {
+      "type": "OperatorWrap",
+      "props": {
+        "tokens": [
+          "=", "+", "-", "*", "/", "%",
+          ">", "<", ">=", "<=", "==", "!=",
+          "&", "|", "^", "&&", "||", "<<",
+          ">>", ">>>", "+=", "-=", "*=", "/=",
+          "%=", "<<=", ">>=", ">>>=", "|=", "&=",
+          "^=", "...", "=>", "++", "--"
+        ],
+        "option": "nl",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "ReturnCount",
+      "props": {
+        "ignoreFormat": "^$",
+        "max": 2,
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "UnusedImport",
+      "props": {
+        "moduleTypeMap": {
+          "soko.gl.Common": [
+            "Direction",
+            "Action"
+          ],
+          "soko.ui.Button": [
+            "ButtonStyle"
+          ]
+        },
+        "ignoreModules": [
+          "soko.gl.FloorType",
+          "soko.gl.TileType"
+        ],
+        "severity": "WARNING"
+      }
+    },
+    {
+      "type": "NullableParameter",
+      "props": {
+        "option": "nullDefault",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "Trace",
+      "props": {
+        "severity": "INFO"
+      }
+    },
+    {
+      "type": "OperatorWhitespace",
+      "props": {
+        "ternaryOpPolicy": "around",
+        "unaryOpPolicy": "around",
+        "boolOpPolicy": "around",
+        "intervalOpPolicy": "none",
+        "assignOpPolicy": "around",
+        "functionArgPolicy": "around",
+        "bitwiseOpPolicy": "around",
+        "arithmeticOpPolicy": "around",
+        "compareOpPolicy": "around",
+        "arrowPolicy": "around",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "WhitespaceAfter",
+      "props": {
+        "tokens": [ ",", ";" ],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "WhitespaceAround",
+      "props": {
+        "tokens": [
+          "=", "+", "-", "*", "/", "%",
+          ">", "<", ">=", "<=", "==", "!=",
+          "&", "|", "^", "&&", "||", "<<",
+          ">>", ">>>", "+=", "-=", "*=", "/=",
+          "%=", "<<=", ">>=", ">>>=", "|=", "&=",
+          "^=", "=>"
+        ],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "Spacing",
+      "props": {
+        "spaceIfCondition": false,
+        "spaceAroundBinop": true,
+        "spaceForLoop": false,
+        "ignoreRangeOperator": true,
+        "spaceWhileLoop": false,
+        "spaceCatch": false,
+        "spaceSwitchCase": false,
+        "noSpaceAroundUnop": true,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "AvoidStarImport",
+      "props": {
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "Anonymous",
+      "props": {
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "ArrayAccess",
+      "props": {
+        "spaceBefore": false,
+        "spaceInside": false,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "DefaultComesLast",
+      "props": {
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "EmptyPackage",
+      "props": {
+        "enforceEmptyPackage": false,
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "HexadecimalLiteral",
+      "props": {
+        "option": "upperCase",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "Interface",
+      "props": {
+        "allowProperties": false,
+        "allowMarkerInterfaces": true,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "UnnecessaryConstructor",
+      "props": {
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "InnerAssignment",
+      "props": {
+        "ignoreReturnAssignments": false,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "HiddenField",
+      "props": {
+        "ignoreSetter": true,
+        "ignoreFormat": "^(main|run)$",
+        "ignoreConstructorParameter": true,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "ConstantName",
+      "props": {
+        "ignoreExtern": true,
+        "format": "^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$",
+        "tokens": [
+          "INLINE"
+        ],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "MemberName",
+      "props": {
+        "ignoreExtern": true,
+        "format": "^[a-z][a-zA-Z0-9]*$",
+        "tokens": [
+          "PUBLIC",
+          "CLASS",
+          "TYPEDEF"
+        ],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "MemberName",
+      "props": {
+        "ignoreExtern": true,
+        "format": "^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$",
+        "tokens": [
+          "PUBLIC",
+          "ABSTRACT"
+        ],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "MemberName",
+      "props": {
+        "ignoreExtern": true,
+        "format": "^_[a-z][a-zA-Z0-9]*$",
+        "tokens": [
+          "PRIVATE",
+          "CLASS"
+        ],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "MemberName",
+      "props": {
+        "ignoreExtern": true,
+        "format": "^[A-Z][A-Z0-9]*(_[A-Z0-9_]+)*$",
+        "tokens": [
+          "ENUM"
+        ],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "CatchParameterName",
+      "props": {
+        "format": "^(e|t|ex|[a-z][a-z][a-zA-Z]+)$",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "ListenerName",
+      "props": {
+        "listeners": [
+          "addEventListener",
+          "addListener",
+          "on",
+          "once"
+        ],
+        "format": "^_?[a-z][a-zA-Z0-9]*$",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "LocalVariableName",
+      "props": {
+        "ignoreExtern": true,
+        "format": "^[a-z][a-zA-Z0-9]*$",
+        "tokens": [],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "MethodName",
+      "props": {
+        "ignoreExtern": true,
+        "format": "^[a-z][a-zA-Z0-9]*$",
+        "tokens": [],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "ParameterName",
+      "props": {
+        "ignoreExtern": true,
+        "format": "^(_|[a-z][a-zA-Z0-9]*$)",
+        "tokens": [],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "TypeName",
+      "props": {
+        "ignoreExtern": true,
+        "format": "^[A-Z]+[a-zA-Z0-9]*$",
+        "tokens": [],
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "MultipleVariableDeclarations",
+      "props": {
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "MultipleStringLiterals",
+      "props": {
+        "minLength": 2,
+        "ignore": "^\\s+$",
+        "allowDuplicates": 2,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "NestedForDepth",
+      "props": {
+        "max": 1,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "NestedIfDepth",
+      "props": {
+        "max": 3,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "NestedTryDepth",
+      "props": {
+        "max": 1,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "SimplifyBooleanExpression",
+      "props": {
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "SimplifyBooleanReturn",
+      "props": {
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "SeparatorWrap",
+      "props": {
+        "tokens": [
+          "."
+        ],
+        "option": "nl",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "SeparatorWrap",
+      "props": {
+        "tokens": [
+          ","
+        ],
+        "option": "eol",
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "StringLiteral",
+      "props": {
+        "policy": "doubleAndInterpolation",
+        "allowException": true,
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "TrailingWhitespace",
+      "props": {
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "Type",
+      "props": {
+        "ignoreEnumAbstractValues": true,
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "ERegLiteral",
+      "props": {
+        "severity": "ERROR"
+      }
+    },
+    {
+      "type": "TODOComment",
+      "props": {
+        "format": "TODO|FIXME|HACK|XXX|BUG",
+        "severity": "IGNORE"
+      }
+    },
+    {
+      "type": "VariableInitialisation",
+      "props": {
+        "severity": "IGNORE"
+      }
+    }
+  ]
+}

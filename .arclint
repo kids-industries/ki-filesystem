@@ -1,0 +1,14 @@
+{
+  "linters": {
+    "haxe-checkstyle" : {
+      "type": "script-and-regex",
+      "include" : "(src)",
+      "script-and-regex.script": "./lint.sh",
+      "script-and-regex.regex": "/^(?P<file>.*):(?P<line>[0-9]{1,}): characters (?P<char>[0-9]{1,}-[0-9]{1,}) : ((?P<advice>Info)|(?P<warning>Warning)|(?P<error>Error)): (?P<message>.*)$/m",
+      "severity.rules": {
+	    "(^E)": "warning",
+	    "(^W)": "advice"
+	  }
+    }
+  }
+}

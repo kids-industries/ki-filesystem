@@ -5,4 +5,4 @@ test-each.hxml
 ################################################
 
 -java bin/java
--cmd java -jar bin/java/Runner.jar
+-cmd java -jar bin/java/Tester.jar

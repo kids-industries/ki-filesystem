@@ -1,9 +1,13 @@
--main Runner
+-main Tester
 
 -cp src
 -cp test
 
+-lib tink_core
+-lib tink_unittest
+-lib tink_testrunner
 -lib mcover
 --macro mcover.MCover.coverage(['filesystem'], ['src'], null)
 
 -dce full
+#-debug

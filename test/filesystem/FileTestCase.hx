@@ -1,9 +1,10 @@
 package filesystem;
 
 import haxe.io.Path;
-import haxe.unit.TestCase;
+import tink.CoreApi.Noise;
+import tink.unit.AssertionBuffer;
 
-class FileTestCase extends TestCase
+class FileTestCase
 {
 	private static inline var ROOT : String = #if air 'app:/' + #end 'test-data';
 
@@ -54,10 +55,14 @@ class FileTestCase extends TestCase
 
 	private var _playground : File;
 
+	public function new()
+	{}
+
 	//--------------------------------------------------------------------------------------------------------------------------------//
 	// SETUP
 	//--------------------------------------------------------------------------------------------------------------------------------//
-	public override function setup() : Void
+	@:before
+	public function setup()
 	{
 		_root = new File(ROOT);
 
@@ -85,9 +90,12 @@ class FileTestCase extends TestCase
 		#else
 		_playground = _root.resolvePath(['../', 'bin', 'test-data']);
 		#end
+
+		return Noise;
 	}
 
-	public override function tearDown() : Void
+	@:after
+	public function tearDown()
 	{
 		// Try and clean up test-data after each test
 		#if air
@@ -119,6 +127,8 @@ class FileTestCase extends TestCase
 		_nonExistantFolder = null;
 		_nonExistantSubFolder = null;
 		_nonExistantSubFile = null;
+
+		return Noise;
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//
@@ -128,26 +138,32 @@ class FileTestCase extends TestCase
 	/**
 	* Are we null?
 	**/
-	public function testConstruct() : Void
+	public function testConstruct()
 	{
-		assertTrue(_root != null);
-		assertTrue(_loremIpsumTxt != null);
-		assertTrue(_loremIpsumZip != null);
-		assertTrue(_dashesInFilename != null);
-		assertTrue(_spacesInFilename != null);
-		assertTrue(_onlyName != null);
-		assertTrue(_onlyExt != null);
-		assertTrue(_subFolder01 != null);
-		assertTrue(_subFolder02 != null);
-		assertTrue(_subFile01 != null);
-		assertTrue(_subFile02 != null);
+		var buffer = new AssertionBuffer();
+
+		buffer.assert(isNotNull(_root));
+		buffer.assert(isNotNull(_loremIpsumTxt));
+		buffer.assert(isNotNull(_loremIpsumZip));
+		buffer.assert(isNotNull(_dashesInFilename));
+		buffer.assert(isNotNull(_spacesInFilename));
+		buffer.assert(isNotNull(_onlyName));
+		buffer.assert(isNotNull(_onlyExt));
+		buffer.assert(isNotNull(_subFolder01));
+		buffer.assert(isNotNull(_subFolder02));
+		buffer.assert(isNotNull(_subFile01));
+		buffer.assert(isNotNull(_subFile02));
+
+		return buffer.done();
 	}
 
 	/**
 	* file.resolveAbsolutePath()
 	**/
-	public function testResolveAbsolutePath() : Void
+	public function testResolveAbsolutePath()
 	{
+		var buffer = new AssertionBuffer();
+
 		var cwd = getCWD();
 
 		// AIR paths are always absolute, so don't prefix the protocal twice
@@ -155,32 +171,38 @@ class FileTestCase extends TestCase
 		cwd = "";
 		#end
 
-		assertEquals(Path.join([cwd, _root.path]), _root.resolveAbsolutePath('').path);
-		assertEquals(Path.join([cwd, _subFolder01.path]), _subFolder01.resolveAbsolutePath('').path);
-		assertEquals(Path.join([cwd, _subFile01.path]), _subFile01.resolveAbsolutePath('').path);
+		buffer.assert(isEqual(Path.join([cwd, _root.path]), _root.resolveAbsolutePath('').path));
+		buffer.assert(isEqual(Path.join([cwd, _subFolder01.path]), _subFolder01.resolveAbsolutePath('').path));
+		buffer.assert(isEqual(Path.join([cwd, _subFile01.path]), _subFile01.resolveAbsolutePath('').path));
+
+		return buffer.done();
 	}
 
 	/**
 	* file.getParent()
 	**/
-	public function testGetParent() : Void
+	public function testGetParent()
 	{
+		var buffer = new AssertionBuffer();
+
 		try
 		{
 			_root.getParent();
 		}
 		catch(error : Any)
 		{
-			assertTrue(true);
+			buffer.assert(isTrue(true));
 		}
 
 		var absoluteRoot = _root.resolveAbsolutePath('');
 		// FIXME: getCWD() won't work on all platforms, swap with ENV value set by test runner
-		assertEquals(Path.join([getCWD()]), absoluteRoot.getParent().path);
+		buffer.assert(isEqual(Path.join([getCWD()]), absoluteRoot.getParent().path));
 
-		assertEquals(_root.path, _loremIpsumTxt.getParent().path);
-		assertEquals(_root.path, _subFolder01.getParent().path);
-		assertEquals(_subFolder01.path, _subFile01.getParent().path);
+		buffer.assert(isEqual(_root.path, _loremIpsumTxt.getParent().path));
+		buffer.assert(isEqual(_root.path, _subFolder01.getParent().path));
+		buffer.assert(isEqual(_subFolder01.path, _subFile01.getParent().path));
+
+		return buffer.done();
 	}
 
 	/**
@@ -188,32 +210,40 @@ class FileTestCase extends TestCase
 	*
 	* Ensure that path and toString are always the same
 	**/
-	public function testToString() : Void
+	public function testToString()
 	{
-		assertEquals(_root.path, _root.toString());
-		assertEquals(_loremIpsumTxt.path, _loremIpsumTxt.toString());
-		assertEquals(_loremIpsumZip.path, _loremIpsumZip.toString());
-		assertEquals(_dashesInFilename.path, _dashesInFilename.toString());
-		assertEquals(_spacesInFilename.path, _spacesInFilename.toString());
-		assertEquals(_onlyName.path, _onlyName.toString());
-		assertEquals(_onlyExt.path, _onlyExt.toString());
-		assertEquals(_subFolder01.path, _subFolder01.toString());
-		assertEquals(_subFolder02.path, _subFolder02.toString());
-		assertEquals(_subFile01.path, _subFile01.toString());
-		assertEquals(_subFile02.path, _subFile02.toString());
+		var buffer = new AssertionBuffer();
+
+		buffer.assert(isEqual(_root.path, _root.toString()));
+		buffer.assert(isEqual(_loremIpsumTxt.path, _loremIpsumTxt.toString()));
+		buffer.assert(isEqual(_loremIpsumZip.path, _loremIpsumZip.toString()));
+		buffer.assert(isEqual(_dashesInFilename.path, _dashesInFilename.toString()));
+		buffer.assert(isEqual(_spacesInFilename.path, _spacesInFilename.toString()));
+		buffer.assert(isEqual(_onlyName.path, _onlyName.toString()));
+		buffer.assert(isEqual(_onlyExt.path, _onlyExt.toString()));
+		buffer.assert(isEqual(_subFolder01.path, _subFolder01.toString()));
+		buffer.assert(isEqual(_subFolder02.path, _subFolder02.toString()));
+		buffer.assert(isEqual(_subFile01.path, _subFile01.toString()));
+		buffer.assert(isEqual(_subFile02.path, _subFile02.toString()));
+
+		return buffer.done();
 	}
 
 	/**
 	* file.clone()
 	**/
-	public function testClone() : Void
+	public function testClone()
 	{
+		var buffer = new AssertionBuffer();
+
 		// Not Null
-		assertTrue(_root.clone() != null);
+		buffer.assert(isNotNull(_root.clone()));
 		// New Instance
-		assertFalse(_root.clone() == _root);
+		buffer.assert(isFalse(_root.clone() == _root));
 		// Same Path
-		assertEquals(_root.path, _root.clone().path);
+		buffer.assert(isEqual(_root.path, _root.clone().path));
+
+		return buffer.done();
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//
@@ -229,28 +259,32 @@ class FileTestCase extends TestCase
 	* file:///folder/filename.ext
 	* C:/folder/filename.ext
 	**/
-	public function testPath() : Void
+	public function testPath()
 	{
+		var buffer = new AssertionBuffer();
+
 		// Type
-		assertTrue(Std.is(_root.path, String));
+		buffer.assert(isTrue(Std.is(_root.path, String)));
 
 		// Values
-		assertEquals(ROOT, _root.path);
+		buffer.assert(isEqual(ROOT, _root.path));
 
-		assertEquals(Path.join([ROOT, LOREM_IPSUM_TXT]), _loremIpsumTxt.path);
-		assertEquals(Path.join([ROOT, LOREM_IPSUM_ZIP]), _loremIpsumZip.path);
+		buffer.assert(isEqual(Path.join([ROOT, LOREM_IPSUM_TXT]), _loremIpsumTxt.path));
+		buffer.assert(isEqual(Path.join([ROOT, LOREM_IPSUM_ZIP]), _loremIpsumZip.path));
 
-		assertEquals(Path.join([ROOT, DASHES_IN_FILENAME_TXT]), _dashesInFilename.path);
-		assertEquals(Path.join([ROOT, SPACES_IN_FILENAME_TXT]), _spacesInFilename.path);
+		buffer.assert(isEqual(Path.join([ROOT, DASHES_IN_FILENAME_TXT]), _dashesInFilename.path));
+		buffer.assert(isEqual(Path.join([ROOT, SPACES_IN_FILENAME_TXT]), _spacesInFilename.path));
 
-		assertEquals(Path.join([ROOT, ONLY_NAME]), _onlyName.path);
-		assertEquals(Path.join([ROOT, '.' + ONLY_EXT]), _onlyExt.path);
+		buffer.assert(isEqual(Path.join([ROOT, ONLY_NAME]), _onlyName.path));
+		buffer.assert(isEqual(Path.join([ROOT, '.' + ONLY_EXT]), _onlyExt.path));
 
-		assertEquals(Path.join([ROOT, SUB_FOLDER_01]), _subFolder01.path);
-		assertEquals(Path.join([ROOT, SUB_FOLDER_02]), _subFolder02.path);
+		buffer.assert(isEqual(Path.join([ROOT, SUB_FOLDER_01]), _subFolder01.path));
+		buffer.assert(isEqual(Path.join([ROOT, SUB_FOLDER_02]), _subFolder02.path));
 
-		assertEquals(Path.join([ROOT, SUB_FOLDER_01, SUB_FILE_TXT]), _subFile01.path);
-		assertEquals(Path.join([ROOT, SUB_FOLDER_02, SUB_FILE_TXT]), _subFile02.path);
+		buffer.assert(isEqual(Path.join([ROOT, SUB_FOLDER_01, SUB_FILE_TXT]), _subFile01.path));
+		buffer.assert(isEqual(Path.join([ROOT, SUB_FOLDER_02, SUB_FILE_TXT]), _subFile02.path));
+
+		return buffer.done();
 	}
 
 	/**
@@ -260,23 +294,27 @@ class FileTestCase extends TestCase
 	*
 	* folder/{file.name}.ext
 	**/
-	public function testName() : Void
+	public function testName()
 	{
-		assertEquals(ROOT.split('/').pop(), _root.name);
+		var buffer = new AssertionBuffer();
 
-		assertEquals(LOREM_IPSUM, _loremIpsumTxt.name);
-		assertEquals(LOREM_IPSUM, _loremIpsumZip.name);
+		buffer.assert(isEqual(ROOT.split('/').pop(), _root.name));
 
-		assertEquals(DASHES_IN_FILENAME, _dashesInFilename.name);
-		assertEquals(SPACES_IN_FILENAME, _spacesInFilename.name);
+		buffer.assert(isEqual(LOREM_IPSUM, _loremIpsumTxt.name));
+		buffer.assert(isEqual(LOREM_IPSUM, _loremIpsumZip.name));
 
-		assertEquals(ONLY_NAME, _onlyName.name);
-		assertEquals("", _onlyExt.name);
+		buffer.assert(isEqual(DASHES_IN_FILENAME, _dashesInFilename.name));
+		buffer.assert(isEqual(SPACES_IN_FILENAME, _spacesInFilename.name));
 
-		assertEquals(SUB_FOLDER_01, _subFolder01.name);
-		assertEquals(SUB_FOLDER_02, _subFolder02.name);
-		assertEquals(SUB_FILE, _subFile01.name);
-		assertEquals(SUB_FILE, _subFile02.name);
+		buffer.assert(isEqual(ONLY_NAME, _onlyName.name));
+		buffer.assert(isEqual("", _onlyExt.name));
+
+		buffer.assert(isEqual(SUB_FOLDER_01, _subFolder01.name));
+		buffer.assert(isEqual(SUB_FOLDER_02, _subFolder02.name));
+		buffer.assert(isEqual(SUB_FILE, _subFile01.name));
+		buffer.assert(isEqual(SUB_FILE, _subFile02.name));
+
+		return buffer.done();
 	}
 
 	/**
@@ -287,23 +325,27 @@ class FileTestCase extends TestCase
 	* {this/is/the/directory/part}/filename.ext
 	* {this/is/the/directory/part}/some-folder
 	**/
-	public function testDir() : Void
+	public function testDir()
 	{
-		assertEquals(null, _root.dir);
+		var buffer = new AssertionBuffer();
 
-		assertEquals(ROOT, _loremIpsumTxt.dir);
-		assertEquals(ROOT, _loremIpsumZip.dir);
+		buffer.assert(isEqual(null, _root.dir));
 
-		assertEquals(ROOT, _dashesInFilename.dir);
-		assertEquals(ROOT, _spacesInFilename.dir);
+		buffer.assert(isEqual(ROOT, _loremIpsumTxt.dir));
+		buffer.assert(isEqual(ROOT, _loremIpsumZip.dir));
 
-		assertEquals(ROOT, _onlyName.dir);
-		assertEquals(ROOT, _onlyExt.dir);
+		buffer.assert(isEqual(ROOT, _dashesInFilename.dir));
+		buffer.assert(isEqual(ROOT, _spacesInFilename.dir));
 
-		assertEquals(ROOT, _subFolder01.dir);
-		assertEquals(ROOT, _subFolder02.dir);
-		assertEquals(Path.join([ROOT, SUB_FOLDER_01]), _subFile01.dir);
-		assertEquals(Path.join([ROOT, SUB_FOLDER_02]), _subFile02.dir);
+		buffer.assert(isEqual(ROOT, _onlyName.dir));
+		buffer.assert(isEqual(ROOT, _onlyExt.dir));
+
+		buffer.assert(isEqual(ROOT, _subFolder01.dir));
+		buffer.assert(isEqual(ROOT, _subFolder02.dir));
+		buffer.assert(isEqual(Path.join([ROOT, SUB_FOLDER_01]), _subFile01.dir));
+		buffer.assert(isEqual(Path.join([ROOT, SUB_FOLDER_02]), _subFile02.dir));
+
+		return buffer.done();
 	}
 
 	/**
@@ -313,23 +355,27 @@ class FileTestCase extends TestCase
 	*
 	* folder/filename.{ext}
 	**/
-	public function testExt() : Void
+	public function testExt()
 	{
-		assertEquals(null, _root.ext);
+		var buffer = new AssertionBuffer();
 
-		assertEquals(TXT, _loremIpsumTxt.ext);
-		assertEquals(ZIP, _loremIpsumZip.ext);
+		buffer.assert(isEqual(null, _root.ext));
 
-		assertEquals(TXT, _dashesInFilename.ext);
-		assertEquals(TXT, _spacesInFilename.ext);
+		buffer.assert(isEqual(TXT, _loremIpsumTxt.ext));
+		buffer.assert(isEqual(ZIP, _loremIpsumZip.ext));
 
-		assertEquals(null, _onlyName.ext);
-		assertEquals(ONLY_EXT, _onlyExt.ext);
+		buffer.assert(isEqual(TXT, _dashesInFilename.ext));
+		buffer.assert(isEqual(TXT, _spacesInFilename.ext));
 
-		assertEquals(null, _subFolder01.ext);
-		assertEquals(null, _subFolder02.ext);
-		assertEquals(TXT, _subFile01.ext);
-		assertEquals(TXT, _subFile02.ext);
+		buffer.assert(isEqual(null, _onlyName.ext));
+		buffer.assert(isEqual(ONLY_EXT, _onlyExt.ext));
+
+		buffer.assert(isEqual(null, _subFolder01.ext));
+		buffer.assert(isEqual(null, _subFolder02.ext));
+		buffer.assert(isEqual(TXT, _subFile01.ext));
+		buffer.assert(isEqual(TXT, _subFile02.ext));
+
+		return buffer.done();
 	}
 
 	/**
@@ -339,23 +385,27 @@ class FileTestCase extends TestCase
 	*
 	* folder/{name.ext}
 	**/
-	public function testFile() : Void
+	public function testFile()
 	{
-		assertEquals(ROOT.split('/').pop(), _root.file);
+		var buffer = new AssertionBuffer();
 
-		assertEquals(LOREM_IPSUM_TXT, _loremIpsumTxt.file);
-		assertEquals(LOREM_IPSUM_ZIP, _loremIpsumZip.file);
+		buffer.assert(isEqual(ROOT.split('/').pop(), _root.file));
 
-		assertEquals(DASHES_IN_FILENAME_TXT, _dashesInFilename.file);
-		assertEquals(SPACES_IN_FILENAME_TXT, _spacesInFilename.file);
+		buffer.assert(isEqual(LOREM_IPSUM_TXT, _loremIpsumTxt.file));
+		buffer.assert(isEqual(LOREM_IPSUM_ZIP, _loremIpsumZip.file));
 
-		assertEquals(ONLY_NAME, _onlyName.file);
-		assertEquals('.' + ONLY_EXT, _onlyExt.file);
+		buffer.assert(isEqual(DASHES_IN_FILENAME_TXT, _dashesInFilename.file));
+		buffer.assert(isEqual(SPACES_IN_FILENAME_TXT, _spacesInFilename.file));
 
-		assertEquals(SUB_FOLDER_01, _subFolder01.file);
-		assertEquals(SUB_FOLDER_02, _subFolder02.file);
-		assertEquals(SUB_FILE_TXT, _subFile01.file);
-		assertEquals(SUB_FILE_TXT, _subFile02.file);
+		buffer.assert(isEqual(ONLY_NAME, _onlyName.file));
+		buffer.assert(isEqual('.' + ONLY_EXT, _onlyExt.file));
+
+		buffer.assert(isEqual(SUB_FOLDER_01, _subFolder01.file));
+		buffer.assert(isEqual(SUB_FOLDER_02, _subFolder02.file));
+		buffer.assert(isEqual(SUB_FILE_TXT, _subFile01.file));
+		buffer.assert(isEqual(SUB_FILE_TXT, _subFile02.file));
+
+		return buffer.done();
 	}
 
 	/**
@@ -365,35 +415,39 @@ class FileTestCase extends TestCase
 	*
 	* folder/filename.{ext}
 	**/
-	public function testIsAbsolute() : Void
+	public function testIsAbsolute()
 	{
+		var buffer = new AssertionBuffer();
+
 		// All AIR paths are absolute
-		var assertBool = #if air assertTrue #else assertFalse #end;
+		var isBool = #if air isTrue #else isFalse #end;
 
-		assertBool(_root.isAbsolute);
+		buffer.assert(isBool(_root.isAbsolute));
 
-		assertBool(_loremIpsumTxt.isAbsolute);
-		assertBool(_loremIpsumZip.isAbsolute);
+		buffer.assert(isBool(_loremIpsumTxt.isAbsolute));
+		buffer.assert(isBool(_loremIpsumZip.isAbsolute));
 
-		assertBool(_dashesInFilename.isAbsolute);
-		assertBool(_spacesInFilename.isAbsolute);
+		buffer.assert(isBool(_dashesInFilename.isAbsolute));
+		buffer.assert(isBool(_spacesInFilename.isAbsolute));
 
-		assertBool(_onlyName.isAbsolute);
-		assertBool(_onlyExt.isAbsolute);
+		buffer.assert(isBool(_onlyName.isAbsolute));
+		buffer.assert(isBool(_onlyExt.isAbsolute));
 
-		assertBool(_subFolder01.isAbsolute);
-		assertBool(_subFolder02.isAbsolute);
-		assertBool(_subFile01.isAbsolute);
-		assertBool(_subFile02.isAbsolute);
+		buffer.assert(isBool(_subFolder01.isAbsolute));
+		buffer.assert(isBool(_subFolder02.isAbsolute));
+		buffer.assert(isBool(_subFile01.isAbsolute));
+		buffer.assert(isBool(_subFile02.isAbsolute));
 
-		assertTrue(new File('/some/path').isAbsolute);
+		buffer.assert(isTrue(new File('/some/path').isAbsolute));
 
 		// AIR can't handle these paths
 		#if !air
-		assertTrue(new File('C:/some/path').isAbsolute);
+		buffer.assert(isTrue(new File('C:/some/path').isAbsolute));
 		// TODO: handle file protocol as absolute path - TRIPLE SLASH!!
-		//assertTrue(new File('file:///some/path').isAbsolute);
+		//buffer.assert(isTrue(new File('file:///some/path').isAbsolute));
 		#end
+
+		return buffer.done();
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//
@@ -405,28 +459,32 @@ class FileTestCase extends TestCase
 	*
 	* Whether the file exists or not.
 	**/
-	public function testExists() : Void
+	public function testExists()
 	{
-		assertTrue(_root.exists);
+		var buffer = new AssertionBuffer();
 
-		assertTrue(_loremIpsumTxt.exists);
-		assertTrue(_loremIpsumZip.exists);
+		buffer.assert(isTrue(_root.exists));
 
-		assertTrue(_dashesInFilename.exists);
-		assertTrue(_spacesInFilename.exists);
+		buffer.assert(isTrue(_loremIpsumTxt.exists));
+		buffer.assert(isTrue(_loremIpsumZip.exists));
 
-		assertTrue(_onlyName.exists);
-		assertTrue(_onlyExt.exists);
+		buffer.assert(isTrue(_dashesInFilename.exists));
+		buffer.assert(isTrue(_spacesInFilename.exists));
 
-		assertTrue(_subFolder01.exists);
-		assertTrue(_subFolder02.exists);
-		assertTrue(_subFile01.exists);
-		assertTrue(_subFile02.exists);
+		buffer.assert(isTrue(_onlyName.exists));
+		buffer.assert(isTrue(_onlyExt.exists));
 
-		assertFalse(_nonExistantFile.exists);
-		assertFalse(_nonExistantFolder.exists);
-		assertFalse(_nonExistantSubFolder.exists);
-		assertFalse(_nonExistantSubFile.exists);
+		buffer.assert(isTrue(_subFolder01.exists));
+		buffer.assert(isTrue(_subFolder02.exists));
+		buffer.assert(isTrue(_subFile01.exists));
+		buffer.assert(isTrue(_subFile02.exists));
+
+		buffer.assert(isFalse(_nonExistantFile.exists));
+		buffer.assert(isFalse(_nonExistantFolder.exists));
+		buffer.assert(isFalse(_nonExistantSubFolder.exists));
+		buffer.assert(isFalse(_nonExistantSubFile.exists));
+
+		return buffer.done();
 	}
 
 	/**
@@ -436,39 +494,45 @@ class FileTestCase extends TestCase
 	*
 	* Note that files/folders that do not exists must be false.
 	**/
-	public function testIsDirectory() : Void
+	public function testIsDirectory()
 	{
-		assertTrue(_root.isDirectory);
+		var buffer = new AssertionBuffer();
 
-		assertFalse(_loremIpsumTxt.isDirectory);
-		assertFalse(_loremIpsumZip.isDirectory);
+		buffer.assert(isTrue(_root.isDirectory));
 
-		assertFalse(_dashesInFilename.isDirectory);
-		assertFalse(_spacesInFilename.isDirectory);
+		buffer.assert(isFalse(_loremIpsumTxt.isDirectory));
+		buffer.assert(isFalse(_loremIpsumZip.isDirectory));
 
-		assertFalse(_onlyName.isDirectory);
-		assertFalse(_onlyExt.isDirectory);
+		buffer.assert(isFalse(_dashesInFilename.isDirectory));
+		buffer.assert(isFalse(_spacesInFilename.isDirectory));
 
-		assertTrue(_subFolder01.isDirectory);
-		assertTrue(_subFolder02.isDirectory);
-		assertFalse(_subFile01.isDirectory);
-		assertFalse(_subFile02.isDirectory);
+		buffer.assert(isFalse(_onlyName.isDirectory));
+		buffer.assert(isFalse(_onlyExt.isDirectory));
 
-		assertFalse(_nonExistantFile.isDirectory);
-		assertFalse(_nonExistantFolder.isDirectory);
-		assertFalse(_nonExistantSubFolder.isDirectory);
-		assertFalse(_nonExistantSubFile.isDirectory);
+		buffer.assert(isTrue(_subFolder01.isDirectory));
+		buffer.assert(isTrue(_subFolder02.isDirectory));
+		buffer.assert(isFalse(_subFile01.isDirectory));
+		buffer.assert(isFalse(_subFile02.isDirectory));
+
+		buffer.assert(isFalse(_nonExistantFile.isDirectory));
+		buffer.assert(isFalse(_nonExistantFolder.isDirectory));
+		buffer.assert(isFalse(_nonExistantSubFolder.isDirectory));
+		buffer.assert(isFalse(_nonExistantSubFile.isDirectory));
+
+		return buffer.done();
 	}
 
 	/**
 	* file.getDirectoryListing(false)
 	**/
-	public function testGetDirectoryListing() : Void
+	public function testGetDirectoryListing()
 	{
+		var buffer = new AssertionBuffer();
+
 		var files = _root.getDirectoryListing();
 
-		assertTrue(files != null);
-		assertTrue(files.length == 8);
+		buffer.assert(isNotNull(files));
+		buffer.assert(isEqual(files.length, 8));
 
 		var expected = [
 			'$ROOT/$LOREM_IPSUM_TXT',
@@ -482,18 +546,22 @@ class FileTestCase extends TestCase
 		];
 
 		for(file in files)
-			assertTrue(expected.indexOf(file.path) != -1);
+			buffer.assert(isTrue(expected.indexOf(file.path) != -1));
+
+		return buffer.done();
 	}
 
 	/**
 	* file.getDirectoryListing(true)
 	**/
-	public function testGetDirectoryListingRecursive() : Void
+	public function testGetDirectoryListingRecursive()
 	{
+		var buffer = new AssertionBuffer();
+
 		var files = _root.getDirectoryListing(true);
 
-		assertTrue(files != null);
-		assertTrue(files.length == 10);
+		buffer.assert(isNotNull(files));
+		buffer.assert(isEqual(files.length, 10));
 
 		var expected = [
 			'$ROOT/$LOREM_IPSUM_TXT',
@@ -509,7 +577,9 @@ class FileTestCase extends TestCase
 		];
 
 		for(file in files)
-			assertTrue(expected.indexOf(file.path) != -1);
+			buffer.assert(isTrue(expected.indexOf(file.path) != -1));
+
+		return buffer.done();
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//
@@ -519,60 +589,66 @@ class FileTestCase extends TestCase
 	/**
 	* file.createDirectory(true|false)
 	**/
-	public function testCreateDirectory() : Void
+	public function testCreateDirectory()
 	{
+		var buffer = new AssertionBuffer();
+
 		// CREATE
-		assertFalse(_playground.exists);
+		buffer.assert(isFalse(_playground.exists));
 
 		_playground.createDirectory();
 
-		assertTrue(_playground.exists);
-		assertTrue(_playground.isDirectory);
+		buffer.assert(isTrue(_playground.exists));
+		buffer.assert(isTrue(_playground.isDirectory));
 
 		var subFolder01 = _playground.resolvePath('folder-01');
 		var subFolder02 = subFolder01.resolvePath('folder 02');
 		var subFolder03 = subFolder02.resolvePath('folder_03');
 
-		assertFalse(subFolder01.exists);
-		assertFalse(subFolder02.exists);
-		assertFalse(subFolder03.exists);
+		buffer.assert(isFalse(subFolder01.exists));
+		buffer.assert(isFalse(subFolder02.exists));
+		buffer.assert(isFalse(subFolder03.exists));
 
 		subFolder03.createDirectory(true);
 
-		assertTrue(subFolder01.exists);
-		assertTrue(subFolder02.exists);
-		assertTrue(subFolder03.exists);
+		buffer.assert(isTrue(subFolder01.exists));
+		buffer.assert(isTrue(subFolder02.exists));
+		buffer.assert(isTrue(subFolder03.exists));
 
-		assertTrue(subFolder01.isDirectory);
-		assertTrue(subFolder02.isDirectory);
-		assertTrue(subFolder03.isDirectory);
+		buffer.assert(isTrue(subFolder01.isDirectory));
+		buffer.assert(isTrue(subFolder02.isDirectory));
+		buffer.assert(isTrue(subFolder03.isDirectory));
+
+		return buffer.done();
 	}
 
 	/**
 	* file.copyTo()
 	**/
-	public function testCopyTo() : Void
+	public function testCopyTo()
 	{
+		var buffer = new AssertionBuffer();
+
 		// CREATE
 		var file = _playground.resolvePath(LOREM_IPSUM_TXT);
 		var subFolder = _playground.resolvePath(SUB_FOLDER_01);
 		var subFile = subFolder.resolvePath(SUB_FILE_TXT);
 
-		assertFalse(_playground.exists);
-		assertFalse(file.exists);
-		assertFalse(subFolder.exists);
-		assertFalse(subFile.exists);
+		buffer.assert(isFalse(_playground.exists));
+		buffer.assert(isFalse(file.exists));
+		buffer.assert(isFalse(subFolder.exists));
+		buffer.assert(isFalse(subFile.exists));
 
 		// Single file copyTo
 		_loremIpsumTxt.copyTo(file);
 		_subFile01.copyTo(subFile);
 
-		assertTrue(_playground.exists);
-		assertTrue(_playground.isDirectory);
-		assertTrue(file.exists);
-		assertTrue(subFolder.exists);
-		assertTrue(subFolder.isDirectory);
-		assertTrue(subFile.exists);
+		buffer.assert(isTrue(_playground.exists));
+		buffer.assert(isTrue(_playground.isDirectory));
+		buffer.assert(isTrue(file.exists));
+		buffer.assert(isTrue(subFolder.exists));
+		buffer.assert(isTrue(subFolder.isDirectory));
+		buffer.assert(isTrue(subFile.exists));
 
 		// Recursive copyTo
 		_root.copyTo(_playground, true);
@@ -591,38 +667,42 @@ class FileTestCase extends TestCase
 		];
 
 		for(path in paths)
-			assertTrue(_playground.resolvePath(path).exists);
+			buffer.assert(isTrue(_playground.resolvePath(path).exists));
 
-		assertTrue(_playground.resolvePath(SUB_FOLDER_02).isDirectory);
+		buffer.assert(isTrue(_playground.resolvePath(SUB_FOLDER_02).isDirectory));
 
 		// TODO: Validate contents of the copied files
+
+		return buffer.done();
 	}
 
 	/**
 	* file.copyInto()
 	**/
-	public function testCopyInto() : Void
+	public function testCopyInto()
 	{
+		var buffer = new AssertionBuffer();
+
 		// CREATE
 		var file = _playground.resolvePath(LOREM_IPSUM_TXT);
 		var subFolder = _playground.resolvePath(SUB_FOLDER_01);
 		var subFile = subFolder.resolvePath(SUB_FILE_TXT);
 
-		assertFalse(_playground.exists);
-		assertFalse(file.exists);
-		assertFalse(subFolder.exists);
-		assertFalse(subFile.exists);
+		buffer.assert(isFalse(_playground.exists));
+		buffer.assert(isFalse(file.exists));
+		buffer.assert(isFalse(subFolder.exists));
+		buffer.assert(isFalse(subFile.exists));
 
 		// Single file copyTo
 		_loremIpsumTxt.copyInto(_playground);
 		_subFile01.copyInto(subFolder);
 
-		assertTrue(_playground.exists);
-		assertTrue(_playground.isDirectory);
-		assertTrue(file.exists);
-		assertTrue(subFolder.exists);
-		assertTrue(subFolder.isDirectory);
-		assertTrue(subFile.exists);
+		buffer.assert(isTrue(_playground.exists));
+		buffer.assert(isTrue(_playground.isDirectory));
+		buffer.assert(isTrue(file.exists));
+		buffer.assert(isTrue(subFolder.exists));
+		buffer.assert(isTrue(subFolder.isDirectory));
+		buffer.assert(isTrue(subFile.exists));
 
 		// Recursive copyTo
 		_root.copyInto(_playground.getParent(), true);
@@ -641,53 +721,83 @@ class FileTestCase extends TestCase
 		];
 
 		for(path in paths)
-			assertTrue(_playground.resolvePath(path).exists);
+			buffer.assert(isTrue(_playground.resolvePath(path).exists));
 
-		assertTrue(_playground.resolvePath(SUB_FOLDER_02).isDirectory);
+		buffer.assert(isTrue(_playground.resolvePath(SUB_FOLDER_02).isDirectory));
 
 		// TODO: Validate contents of the copied files
+
+		return buffer.done();
 	}
 
 	/**
 	* file.moveTo()
 	**/
-	public function testMoveTo() : Void
+	public function testMoveTo()
 	{
+		var buffer = new AssertionBuffer();
+
 		// Create a working copy first
 		_root.copyTo(_playground);
 
 		var file = _playground.resolvePath(LOREM_IPSUM_TXT);
 		var fileTarget = _playground.resolvePath('new-file.txt');
 
-		assertFalse(fileTarget.exists);
+		buffer.assert(isFalse(fileTarget.exists));
 
 		file.moveTo(fileTarget);
 
-		assertFalse(file.exists);
-		assertTrue(fileTarget.exists);
+		buffer.assert(isFalse(file.exists));
+		buffer.assert(isTrue(fileTarget.exists));
 
 		var folder = _playground.resolvePath(SUB_FOLDER_01);
 		var folderTarget = _playground.resolvePath('new-folder');
 
-		assertFalse(folderTarget.exists);
+		buffer.assert(isFalse(folderTarget.exists));
 
 		folder.moveTo(folderTarget);
 
-		assertFalse(folder.exists);
-		assertTrue(folderTarget.exists);
+		buffer.assert(isFalse(folder.exists));
+		buffer.assert(isTrue(folderTarget.exists));
+
+		return buffer.done();
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//
 	// HELPERS
 	//--------------------------------------------------------------------------------------------------------------------------------//
 
-	private function println(v : Dynamic)
+	private static inline function isTrue(value : Bool)
 	{
-		print(v);
-		print("\n");
+		return value == true;
 	}
 
-	private function getCWD() : String
+	private static inline function isFalse(value : Bool)
+	{
+		return value == false;
+	}
+
+	private static inline function isNull(value : Dynamic)
+	{
+		return value == null;
+	}
+
+	private static inline function isNotNull(value : Dynamic)
+	{
+		return value != null;
+	}
+
+	private static inline function isEqual(value1 : Dynamic, value2 : Dynamic)
+	{
+		return value1 == value2;
+	}
+
+	private static inline function isNotEqual(value1 : Dynamic, value2 : Dynamic)
+	{
+		return value1 != value2;
+	}
+
+	private inline function getCWD() : String
 	{
 		#if (cpp || cs || hl || java || lua || neko || php || python || macro)
 		return Sys.getCwd();

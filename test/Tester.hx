@@ -1,53 +1,66 @@
 package ;
 
-import haxe.unit.TestResult;
-import haxe.unit.TestRunner;
 import mcover.coverage.client.PrintClient;
+import tink.testrunner.Runner;
+import tink.unit.TestBatch;
 
-class Runner
+class Tester
 {
-	public var result(default, null) : TestResult;
+	//public var result(default, null) : TestResult;
 
 	public static function main() : Void
 	{
-		#if air
-		TestRunner.print = flash.Lib.trace;
-		#end
+//		#if air
+//		TestRunner.print = flash.Lib.trace;
+//		#end
 
-		var runner = new Runner();
-		runner.test();
-		runner.coverage();
+		var tester = new Tester();
+		tester.test(
+			function(results : BatchResult) : Void
+			{
+				//tester.coverage();
 
-		exit(runner.result.success ? 0 : 1);
+				exit(results.summary().failures.length);
+			});
+
+		//exit(0);
+		//exit(runner.result.success ? 0 : 1);
 	}
 
 	public function new()
 	{
 	}
 
-	private function test() : Void
+	private function test(handler : BatchResult -> Void) : Void
 	{
 		print("---------------------------------------");
 		print("----------- STARTING RUNNER -----------");
 		print("---------------------------------------");
 
-		var runner = new TestRunner();
-		result = runner.result;
-		runner.add(new filesystem.FileTestCase());
+		Runner.run(
+			TestBatch.make(
+				[
+					new filesystem.FileTestCase()
+				])
+		).handle(handler);
 
-		#if air
-		try
-		{
-			runner.run();
-		}
-		catch(error : flash.errors.Error)
-		{
-			print(error.getStackTrace());
-			exit(1);
-		}
-		#else
-		runner.run();
-		#end
+		/*var runner = new TestRunner();
+		result = runner.result;
+		runner.add(new filesystem.FileTestCase());*/
+
+//		#if air
+//		try
+//		{
+//			runner.run();
+//		}
+//		catch(error : flash.errors.Error)
+//		{
+//			print(error.getStackTrace());
+//			exit(1);
+//		}
+//		#else
+//		runner.run();
+//		#end
 	}
 
 	private function coverage() : Void
@@ -63,17 +76,17 @@ class Runner
 
 	private static function exit(code : Int = 0) : Void
 	{
-		#if (cpp || cs || hl || java || lua || neko || php || python || macro)
+		#if (sys || nodejs)
 		Sys.exit(code);
 		#elseif air
-		var app = untyped __global__["flash.desktop.NativeApplication"];
-		app.nativeApplication.exit(code);
+		untyped __global__["flash.desktop.NativeApplication"].nativeApplication.exit(code);
 		#end
 	}
 
 	public inline static function print(v : Dynamic) : Void
 	{
-		TestRunner.print(v);
+		trace(v);
+		//TestRunner.print(v);
 	}
 }
 
@@ -91,6 +104,6 @@ class CustomPrintClient extends PrintClient
 		super.printReport();
 		output += newline;
 
-		Runner.print(newline + output);
+		Tester.print(newline + output);
 	}
 }

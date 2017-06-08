@@ -6,32 +6,17 @@ import tink.unit.TestBatch;
 
 class Tester
 {
-	//public var result(default, null) : TestResult;
-
 	public static function main() : Void
 	{
-//		#if air
-//		TestRunner.print = flash.Lib.trace;
-//		#end
+		test(function(result : BatchResult) : Void
+		     {
+			     coverage();
 
-		var tester = new Tester();
-		tester.test(
-			function(results : BatchResult) : Void
-			{
-				//tester.coverage();
-
-				exit(results.summary().failures.length);
-			});
-
-		//exit(0);
-		//exit(runner.result.success ? 0 : 1);
+			     Runner.exit(result);
+		     });
 	}
 
-	public function new()
-	{
-	}
-
-	private function test(handler : BatchResult -> Void) : Void
+	private static function test(handler : BatchResult -> Void) : Void
 	{
 		print("---------------------------------------");
 		print("----------- STARTING RUNNER -----------");
@@ -43,27 +28,9 @@ class Tester
 					new filesystem.FileTestCase()
 				])
 		).handle(handler);
-
-		/*var runner = new TestRunner();
-		result = runner.result;
-		runner.add(new filesystem.FileTestCase());*/
-
-//		#if air
-//		try
-//		{
-//			runner.run();
-//		}
-//		catch(error : flash.errors.Error)
-//		{
-//			print(error.getStackTrace());
-//			exit(1);
-//		}
-//		#else
-//		runner.run();
-//		#end
 	}
 
-	private function coverage() : Void
+	private static function coverage() : Void
 	{
 		print("---------------------------------------");
 		print("-------------- COVERAGE ---------------");
@@ -74,19 +41,15 @@ class Tester
 		logger.report();
 	}
 
-	private static function exit(code : Int = 0) : Void
-	{
-		#if (sys || nodejs)
-		Sys.exit(code);
-		#elseif air
-		untyped __global__["flash.desktop.NativeApplication"].nativeApplication.exit(code);
-		#end
-	}
-
 	public inline static function print(v : Dynamic) : Void
 	{
-		trace(v);
-		//TestRunner.print(v);
+		#if air
+		flash.Lib.trace(v);
+		#elseif (sys || nodejs)
+		Sys.println(v);
+		#else
+		haxe.unit.TestRunner.print(v);
+		#end
 	}
 }
 

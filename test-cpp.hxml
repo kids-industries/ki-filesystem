@@ -5,4 +5,4 @@ test-each.hxml
 ################################################
 
 -cpp bin/cpp
--cmd bin/cpp/Runner
+-cmd bin/cpp/Tester

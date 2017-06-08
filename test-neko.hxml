@@ -4,5 +4,5 @@ test-each.hxml
 ## NEKO
 ################################################
 
--neko bin/neko/Runner.n
--cmd neko bin/neko/Runner.n
+-neko bin/neko/Tester.n
+-cmd neko bin/neko/Tester.n

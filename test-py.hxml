@@ -4,5 +4,5 @@ test-each.hxml
 ## PYTHON
 ################################################
 
--python bin/py/Runner.py
--cmd /usr/bin/python3 bin/py/Runner.py
+-python bin/py/Tester.py
+-cmd /usr/bin/python3 bin/py/Tester.py

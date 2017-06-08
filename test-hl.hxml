@@ -4,5 +4,5 @@ test-each.hxml
 ## HASHLINK
 ################################################
 
--hl bin/hl/Runner.hl
--cmd hl bin/hl/Runner.hl
+-hl bin/hl/Tester.hl
+-cmd hl bin/hl/Tester.hl

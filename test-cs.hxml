@@ -5,4 +5,4 @@ test-each.hxml
 ################################################
 
 -cs bin/cs
--cmd mono bin/cs/bin/Runner.exe
+-cmd mono bin/cs/bin/Tester.exe

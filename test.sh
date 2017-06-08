@@ -48,6 +48,17 @@ function build()
 	sed -n '/%%%RUNNER-START%%%/{:a;n;/%%%RUNNER-END%%%/b;p;ba}' $log > $testLog
 	sed -n '/%%%COVERAGE-START%%%/{:a;n;/%%%COVERAGE-END%%%/b;p;ba}' $log > $coverageLog
 	sed -n '/%%%EMMA-START%%%/{:a;n;/%%%EMMA-END%%%/b;p;ba}' $log > $emmaXml
+
+	# Delete files if they are empty
+	if [ ! -s $testLog ]; then
+		rm -f $testLog
+	fi
+	if [ ! -s $coverageLog ]; then
+		rm -f $coverageLog
+	fi
+	if [ ! -s $emmaXml ]; then
+		rm -f $emmaXml
+	fi
 }
 
 if [ $WHAT != "all" ]; then

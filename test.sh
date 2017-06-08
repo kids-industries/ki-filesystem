@@ -35,8 +35,6 @@ function build()
 
 	haxe "test-$target.hxml" > >(tee -a $log) 2> >(tee -a $log >&2)
 
-	echo "############################################################" >> $log
-
 	if [ $? != 0 ]; then
 		ERROR=true
 		ERROR_TARGETS+=("$target")

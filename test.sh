@@ -14,7 +14,7 @@ if [ "$2" == "clean" ]; then
 	CLEAN=true
 fi
 
-mkdir -p report bin
+mkdir -p report/test report/coverage report/emma bin
 
 ERROR=false
 declare -a ERROR_TARGETS
@@ -23,15 +23,17 @@ function build()
 {
 	local target=$1
 	local log="report/$target.log"
+	local testLog="report/test/$target.log"
+	local coverageLog="report/coverage/$target.log"
+	local emmaXml="report/emma/$target.xml"
 
 	# Ensure the playground doesn't exist
 	rm -rf "bin/test-data"
 
+	rm -rf $log $testLog $coverageLog $emmaXml
 	if [ $CLEAN == true ]; then
-		rm -rf $log bin/$target
+		rm -rf bin/$target
 	fi
-
-	echo "############################################################" >> $log
 
 	haxe "test-$target.hxml" > >(tee -a $log) 2> >(tee -a $log >&2)
 
@@ -39,6 +41,13 @@ function build()
 		ERROR=true
 		ERROR_TARGETS+=("$target")
 	fi
+
+	# there is slight lag between tee and writing to the file, sleep a little before continuing
+	sleep 2
+
+	sed -n '/%%%RUNNER-START%%%/{:a;n;/%%%RUNNER-END%%%/b;p;ba}' $log > $testLog
+	sed -n '/%%%COVERAGE-START%%%/{:a;n;/%%%COVERAGE-END%%%/b;p;ba}' $log > $coverageLog
+	sed -n '/%%%EMMA-START%%%/{:a;n;/%%%EMMA-END%%%/b;p;ba}' $log > $emmaXml
 }
 
 if [ $WHAT != "all" ]; then

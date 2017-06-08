@@ -1,5 +1,6 @@
 package filesystem;
 
+import haxe.macro.Expr;
 import haxe.extern.EitherType;
 import haxe.io.Path;
 
@@ -162,16 +163,23 @@ class File
 	*
 	* You can use a relative path or absolute path as the path parameter.
 	*
-	* If you specify a relative path, the given path is "appended" to the path of the File object. However, use of ".." in the path can return a resulting path that is not a child of the File object. The resulting reference need not refer to an actual file system location.
+	* If you specify a relative path, the given path is "appended" to the path of the File object. However, use of ".."
+	* in the path can return a resulting path that is not a child of the File object. The resulting reference need not
+	* refer to an actual file system location.
 	*
-	* If you specify an absolute file reference, the method returns the File object pointing to that path. The absolute file reference should use valid native path syntax for the user's operating system (such as "C:\\test" on Windows). Do not use a URL (such as "file:///c:/test") as the path parameter.
+	* If you specify an absolute file reference, the method returns the File object pointing to that path. The absolute
+	* file reference should use valid native path syntax for the user's operating system (such as "C:\\test" on
+	* Windows). Do not use a URL (such as "file:///c:/test") as the path parameter.
 	*
 	* All resulting paths are normalized as follows:
 	*    Any "." element is ignored.
 	*    Any ".." element consumes its parent entry.
-	*    No ".." reference that reaches the file system root or the application-persistent storage root passes that node; it is ignored.
+	*    No ".." reference that reaches the file system root or the application-persistent storage
+	*    root passes that node; it is ignored.
 	*
-	* You should always use the forward slash (/) character as the path separator. On Windows, you can also use the backslash (\) character, but you should not. Using the backslash character can lead to applications that do not work on other platforms.
+	* You should always use the forward slash (/) character as the path separator. On Windows, you can also use the
+	* backslash (\) character, but you should not. Using the backslash character can lead to applications that
+	* do not work on other platforms.
 	*
 	* Filenames and directory names are case-sensitive on non-Windows.
 	*
@@ -192,12 +200,12 @@ class File
 		#if (!macro && air)
 		return resolvePath(pathOrSegments);
 		#else
-		var path = joinPaths(pathOrSegments);
+		var p = joinPaths(pathOrSegments);
 
-		if(Path.isAbsolute(path))
-			throwError('Input path ($path) is already absolute. Only relative path can be resolved into absolute paths.');
+		if(Path.isAbsolute(p))
+			throwError('Input path ($p) is already absolute. Only relative path can be resolved into absolute paths.');
 
-		return new File(FileSystem.absolutePath(path));
+		return new File(FileSystem.absolutePath(p));
 		#end
 	}
 
@@ -209,10 +217,10 @@ class File
 	**/
 	public function getParent() : File
 	{
-		var path = Path.join([path, "../"]);
-		if(!isAbsolute && path == "")
+		var p = Path.join([path, "../"]);
+		if(!isAbsolute && p == "")
 			throwError('Can\'t step out of CWD, use resolveAbsolutePath("../") instead.');
-		return new File(path);
+		return new File(p);
 	}
 
 	/**
@@ -249,11 +257,11 @@ class File
 			var iL : Int = files.length;
 			for(i in 0...iL)
 			{
-				var file : File = files[i];
-				var targetPath : String = file.path.replace(path, dest.path);
+				var child : File = files[i];
+				var targetPath : String = child.path.replace(path, dest.path);
 				var targetFile : File = new File(targetPath);
 
-				file.copyTo(targetFile, overwrite);
+				child.copyTo(targetFile, overwrite);
 			}
 		}
 	}
@@ -380,7 +388,6 @@ class File
 		for(i in 0...iL)
 			paths.push(ff[i].url.urlDecode());
 		#else
-		var path : String = path;
 		paths = FileSystem.readDirectory(path);
 
 		var iL : Int = paths.length;
@@ -474,7 +481,7 @@ class File
 	/**
 	* Throw and error with a message. Generic prefix will be added.
 	**/
-	private static macro function throwError(msg : String)
+	private static macro function throwError(msg : String) : Expr
 	{
 		return macro {
 			throw '[${Type.getClassName(File)}] $msg';

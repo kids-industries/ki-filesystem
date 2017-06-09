@@ -93,7 +93,9 @@ class CoveragePrintClient extends mcover.coverage.client.PrintClient
 	}
 }
 
+#if air
 class AIRRunnerReporter extends tink.testrunner.Reporter.BasicReporter
 {
 	override function println(v : String) flash.Lib.trace(v);
 }
+#end

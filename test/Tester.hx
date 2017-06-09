@@ -1,7 +1,6 @@
 package ;
 
 import mcover.coverage.client.EMMAPrintClient;
-import mcover.coverage.client.PrintClient;
 import tink.testrunner.Runner;
 import tink.unit.TestBatch;
 
@@ -13,7 +12,13 @@ class Tester
 		     {
 			     coverage();
 
+			     #if air
+			     untyped __global__["flash.desktop.NativeApplication"]
+							.nativeApplication
+							.exit(result.summary().failures.length);
+			     #else
 			     Runner.exit(result);
+			     #end
 		     });
 	}
 
@@ -29,6 +34,7 @@ class Tester
 				[
 					new filesystem.FileTestCase()
 				])
+			#if air , new AIRRunnerReporter() #end
 		).handle(function(result : BatchResult) : Void
 		         {
 			         print("%%%RUNNER-END%%%");
@@ -47,7 +53,7 @@ class Tester
 
 		var logger = mcover.coverage.MCoverage.getLogger();
 		logger.addClient(emma);
-		logger.addClient(new CustomPrintClient());
+		logger.addClient(new CoveragePrintClient());
 		logger.report();
 
 		print("%%%COVERAGE-END%%%");
@@ -69,7 +75,7 @@ class Tester
 	}
 }
 
-class CustomPrintClient extends PrintClient
+class CoveragePrintClient extends mcover.coverage.client.PrintClient
 {
 	public function new()
 	{
@@ -85,4 +91,9 @@ class CustomPrintClient extends PrintClient
 
 		Tester.print(newline + output);
 	}
+}
+
+class AIRRunnerReporter extends tink.testrunner.Reporter.BasicReporter
+{
+	override function println(v : String) flash.Lib.trace(v);
 }

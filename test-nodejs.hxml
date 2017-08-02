@@ -1,0 +1,12 @@
+################################################
+## NODEJS
+################################################
+
+-D js-es5
+
+-lib hxnodejs
+
+-js bin/nodejs/Tester.js
+-cmd node bin/nodejs/Tester.js
+
+test-each.hxml

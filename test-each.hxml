@@ -10,4 +10,4 @@
 --macro mcover.MCover.coverage(['filesystem'], ['src'], null)
 
 -dce full
-#-debug
+-debug

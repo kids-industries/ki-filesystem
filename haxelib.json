@@ -4,7 +4,7 @@
   "license": "proprietary",
   "tags": [],
   "description": "Kids Industries - haxe filesystem",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "classPath": "src/",
   "releasenote": "Basic support.",
   "contributors": [

@@ -799,7 +799,7 @@ class FileTestCase
 
 	private inline function getCWD() : String
 	{
-		#if (cpp || cs || hl || java || lua || neko || php || python || macro)
+		#if (sys || nodejs || macro)
 		return Sys.getCwd();
 		#elseif air
 		return "app:/";

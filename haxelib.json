@@ -4,9 +4,9 @@
   "license": "proprietary",
   "tags": [],
   "description": "Kids Industries - haxe filesystem",
-  "version": "0.7.3",
+  "version": "1.0.0",
   "classPath": "src/",
-  "releasenote": "Added dox",
+  "releasenote": "Added FileTools",
   "contributors": [
     "Matan Uberstein"
   ],

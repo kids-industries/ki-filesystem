@@ -1,3 +1,7 @@
+# 1.0.0
+
+- Added `FileTools` for easy `read` and `write` of files
+
 # 0.7.3
 
 - Added dox generation

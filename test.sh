@@ -35,6 +35,12 @@ function build()
 		rm -rf bin/$target
 	fi
 
+	echo ""
+	echo "-------------------------------------------"
+	echo "Compiling and running: $target"
+	echo "-------------------------------------------"
+	echo ""
+
 	haxe "test-$target.hxml" --each "test-each.hxml" > >(tee -a $log) 2> >(tee -a $log >&2)
 
 	if [ $? != 0 ]; then

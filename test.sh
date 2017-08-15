@@ -80,18 +80,22 @@ else
 	done
 fi
 
-popd
-
 if [ $ERROR == true ]; then
+
+	FAILED_TARGETS=report/FAILED.txt
+	rm -f $FAILED_TARGETS
+
 	echo "-------------------------------------------"
 	echo "-------------------------------------------"
-	echo "The follow targets failed:"
+	echo "The follow targets failed:" | tee -a $FAILED_TARGETS
 
 	for T in "${ERROR_TARGETS[@]}"; do
-	   echo " - $T"
+	   echo " - $T" | tee -a $FAILED_TARGETS
 	done
 
 	echo "-------------------------------------------"
 	echo "-------------------------------------------"
 	exit 1
 fi
+
+popd

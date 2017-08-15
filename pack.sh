@@ -32,25 +32,8 @@ fi
 
 mkdir $NAME
 
-rsync -ravc ./ $NAME/ \
-    --exclude '/bin' \
-    --exclude '/test' \
-    --exclude '/test-data' \
-    --exclude '/out' \
-    --exclude '/report' \
-    --exclude '/.git' \
-    --exclude '/.gitignore' \
-    --exclude '/.temp' \
-    --exclude '/.idea' \
-    --exclude '/.vscode' \
-    --exclude '/*.iml' \
-    --exclude '/.arcconfig' \
-    --exclude '/.arclint' \
-    --exclude '/checkstyle.json' \
-    --exclude '/test-air.xml' \
-    --exclude '/*.sh' \
-    --exclude '/*.hxml' \
-    --exclude "/$NAME"
+rsync -ravc ./src $NAME/
+rsync -avc ./haxelib.json $NAME/
 
 zip -r $TARGET $NAME
 

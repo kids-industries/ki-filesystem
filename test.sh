@@ -35,7 +35,7 @@ function build()
 		rm -rf bin/$target
 	fi
 
-	haxe "test-$target.hxml" > >(tee -a $log) 2> >(tee -a $log >&2)
+	haxe "test-$target.hxml" --each "test-each.hxml" > >(tee -a $log) 2> >(tee -a $log >&2)
 
 	if [ $? != 0 ]; then
 		ERROR=true

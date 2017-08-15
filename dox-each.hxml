@@ -1,0 +1,4 @@
+--no-output
+-D doc-gen
+-cp src
+--macro include('filesystem')

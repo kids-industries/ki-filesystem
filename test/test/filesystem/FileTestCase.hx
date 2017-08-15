@@ -1,5 +1,6 @@
-package filesystem;
+package test.filesystem;
 
+import filesystem.File;
 import haxe.io.Path;
 import tink.CoreApi.Noise;
 import tink.unit.AssertionBuffer;

@@ -23,3 +23,5 @@ $RECYCLE.BIN/
 /.temp
 /bin
 /report
+/docs
+/*.zip

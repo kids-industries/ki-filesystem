@@ -80,6 +80,8 @@ else
 	done
 fi
 
+EXIT_CODE=0
+
 if [ $ERROR == true ]; then
 
 	FAILED_TARGETS=report/FAILED.txt
@@ -95,7 +97,9 @@ if [ $ERROR == true ]; then
 
 	echo "-------------------------------------------"
 	echo "-------------------------------------------"
-	exit 1
+	EXIT_CODE=1
 fi
 
 popd
+
+exit $EXIT_CODE

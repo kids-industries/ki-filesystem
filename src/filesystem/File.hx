@@ -19,8 +19,6 @@ class File
 	/**
 	* The resolved path. Note this might differ from the instanciated
 	* value based on platform.
-	*
-	* TESTED
 	**/
 	public var path(default, null) : String;
 
@@ -31,8 +29,6 @@ class File
 	*
     * If there is no file name, e.g. for ".htaccess" or "/dir/", the value
 	* is the empty String "".
-	*
-	* TESTED
 	**/
 	public var name(default, null) : String;
 
@@ -44,8 +40,6 @@ class File
 	*
 	* Does not end with a `/` or `\` separator.
 	* If the path has no directory, the value is null.
-	*
-	* TESTED
 	**/
 	public var dir(default, null) : String;
 
@@ -56,22 +50,16 @@ class File
 	* the extension.
 	*
 	* If the path has no extension, the value is null.
-	*
-	* TESTED
 	**/
 	public var ext(default, null) : String;
 
 	/**
 	* The full file name, including extension.
-	*
-	* TESTED
 	**/
 	public var file(default, null) : String;
 
 	/**
 	* Whether the path is absolute or relative.
-	*
-	* TESTED
 	**/
 	public var isAbsolute(default, null) : Bool;
 
@@ -79,8 +67,6 @@ class File
 	* Checks if the file exists on disk.
 	*
 	* !!Performs IO!!
-	*
-	* TESTED
 	**/
 	public var exists(get, never) : Bool;
 
@@ -89,8 +75,6 @@ class File
 	* This value will only be true if it's an directory that exists on disk, otherwise false.
 	*
 	* !!Performs IO!!
-	*
-	* TESTED
 	**/
 	public var isDirectory(get, never) : Bool;
 
@@ -182,8 +166,6 @@ class File
 	* do not work on other platforms.
 	*
 	* Filenames and directory names are case-sensitive on non-Windows.
-	*
-	* IMPLICIDLY TESTED
 	**/
 	public function resolvePath(pathOrSegments : EitherType<String, Array<String>>) : File
 	{
@@ -192,8 +174,6 @@ class File
 
 	/**
 	* Resolve absolute path. Same as resolvePath, but the File instance's path will be the full system path.
-	*
-	* TESTED
 	**/
 	public function resolveAbsolutePath(pathOrSegments : EitherType<String, Array<String>>) : File
 	{
@@ -212,8 +192,6 @@ class File
 	/**
 	* Get the parent file instance, same as '../' for directories.
 	* Non directories will be return the parent directory.
-	*
-	* TESTED
 	**/
 	public function getParent() : File
 	{
@@ -228,8 +206,6 @@ class File
 	* to the location specified by the dest parameter. The copy process creates
 	* any required parent directories (if possible). When overwriting files
 	* using copyTo(), the file attributes are also overwritten.
-	*
-	* TESTED
 	**/
 	public function copyTo(dest : File, overwrite : Bool = false) : Void
 	{
@@ -275,8 +251,6 @@ class File
 	*
 	* /source/stuff -> /new/location
 	* Results in 'stuff' to be cloned to /new/location/stuff
-	*
-	* TESTED
 	**/
 	public function copyInto(directory : File, overwrite : Bool = false) : Void
 	{
@@ -288,8 +262,6 @@ class File
 
 	/**
 	* Move to new location.
-	*
-	* TESTED
 	**/
 	public function moveTo(dest : File, overwrite : Bool = false) : Void
 	{
@@ -305,8 +277,6 @@ class File
 
 	/**
 	* Deletes file or directory recursively.
-	*
-	* TESTED
 	**/
 	public function delete() : Void
 	{
@@ -341,8 +311,6 @@ class File
 	* Creates directory optionally with parent directories as well.
 	*
 	* No action is taken if the directory exists.
-	*
-	* TESTED
 	**/
 	public function createDirectory(andParents : Bool = false) : Void
 	{
@@ -367,8 +335,6 @@ class File
 
 	/**
 	* Get all files and folders in directory.
-	*
-	* TESTED
 	**/
 	public function getDirectoryListing(recursive : Bool = false) : Array<File>
 	{
@@ -417,8 +383,6 @@ class File
 
 	/**
 	* Create new File instance from this instance.
-	*
-	* TESTED
 	**/
 	public inline function clone() : File
 	{
@@ -427,8 +391,6 @@ class File
 
 	/**
 	* Get path as string.
-	*
-	* TESTED
 	**/
 	public inline function toString() : String
 	{

@@ -115,7 +115,7 @@ class FileTools
 	public static function appendString(file : File, data : String) : Void
 	{
 		#if nodejs
-		js.node.Fs.appendFileSync(file.path, data, 'a');
+		js.node.Fs.appendFileSync(file.path, data);
 		#else
 		var output = sys.io.File.append(file.path, true);
 		output.writeString(data);

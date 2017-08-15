@@ -32,7 +32,8 @@ class Tester
 		Runner.run(
 			TestBatch.make(
 				[
-					new test.filesystem.FileTestCase()
+					new test.filesystem.FileTestCase(),
+					new test.filesystem.FileToolsTestCase()
 				])
 			#if air , new AIRRunnerReporter() #end
 		).handle(function(result : BatchResult) : Void

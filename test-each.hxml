@@ -7,7 +7,7 @@
 -lib tink_unittest
 -lib tink_testrunner
 -lib mcover
+-lib compiletime
 --macro mcover.MCover.coverage(['filesystem'], ['src'], null)
 
 -dce full
-#-debug

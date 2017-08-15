@@ -24,11 +24,11 @@ class File
 
 	/**
 	* The file's name without extension.
-	*
+    *
     * This is the part of the part between the directory and the extension.
-	*
+    *
     * If there is no file name, e.g. for ".htaccess" or "/dir/", the value
-	* is the empty String "".
+    * is the empty String "".
 	**/
 	public var name(default, null) : String;
 

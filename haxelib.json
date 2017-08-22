@@ -4,9 +4,9 @@
   "license": "proprietary",
   "tags": [],
   "description": "Kids Industries - haxe filesystem",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "classPath": "src/",
-  "releasenote": "Unified FileTools impl",
+  "releasenote": "",
   "contributors": [
     "Matan Uberstein"
   ],

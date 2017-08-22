@@ -1,3 +1,11 @@
+# 1.0.3
+
+- Fixed `FileTools` compile with `openfl` target choosing wrong implementation
+
+# 1.0.2
+
+- Unified `FileTools` implementation. E.g. no duplication of methods for platforms
+
 # 1.0.0
 
 - Added `FileTools` for easy `read` and `write` of files

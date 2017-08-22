@@ -2,11 +2,12 @@ package test.filesystem;
 
 import filesystem.File;
 import tink.CoreApi.Noise;
+import tink.testrunner.Case.BasicCase;
 import tink.unit.AssertionBuffer;
 
 using filesystem.FileTools;
 
-class FileToolsTestCase
+class FileToolsTestCase extends BasicCase
 {
 	private static inline var ROOT : String = #if air 'app:/' + #end 'test-data';
 
@@ -22,9 +23,6 @@ class FileToolsTestCase
 	private var _playground : File;
 
 	private var _loremIpsumTxtContent : String = CompileTime.readFile('test-data/Lorem Ipsum.txt');
-
-	public function new()
-	{}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//
 	// SETUP
@@ -225,6 +223,8 @@ class FileToolsTestCase
 		return Sys.getCwd();
 		#elseif air
 		return "app:/";
+		#elseif phantomjs
+		return js.phantomjs.FileSystem.workingDirectory;
 		#else
 		throw "Can't get working directory of unknow platform.";
 		#end

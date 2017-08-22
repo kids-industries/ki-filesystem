@@ -8,18 +8,21 @@ class Tester
 {
 	public static function main() : Void
 	{
+		#if phantomjs
+		js.Browser.window.onerror = function(event : haxe.extern.EitherType<js.html.Event, String>, msg : String, line : Int, char : Int, data : Dynamic) : Bool
+		{
+			print('UNCAUGHT ERROR: ' + event);
+			print('Exiting...');
+			haxe.Timer.delay(function() js.phantomjs.Phantom.exit(1), 250);
+			return false;
+		}
+		#end
 		test(function(result : BatchResult) : Void
-		     {
-			     coverage();
+			 {
+				 coverage();
 
-			     #if air
-			     untyped __global__["flash.desktop.NativeApplication"]
-							.nativeApplication
-							.exit(result.summary().failures.length);
-			     #else
-			     Runner.exit(result);
-			     #end
-		     });
+				 Runner.exit(result);
+			 });
 	}
 
 	private static function test(handler : BatchResult -> Void) : Void
@@ -35,12 +38,11 @@ class Tester
 					new test.filesystem.FileTestCase(),
 					new test.filesystem.FileToolsTestCase()
 				])
-			#if air , new AIRRunnerReporter() #end
 		).handle(function(result : BatchResult) : Void
-		         {
-			         print("%%%RUNNER-END%%%");
-			         handler(result);
-		         });
+				 {
+					 print("%%%RUNNER-END%%%");
+					 handler(result);
+				 });
 	}
 
 	private static function coverage() : Void
@@ -70,6 +72,8 @@ class Tester
 		flash.Lib.trace(v);
 		#elseif (sys || nodejs)
 		Sys.println(v);
+		#elseif js
+		js.Browser.window.console.log(v);
 		#else
 		haxe.unit.TestRunner.print(v);
 		#end
@@ -81,8 +85,8 @@ class CoveragePrintClient extends mcover.coverage.client.PrintClient
 	public function new()
 	{
 		super();
-		newline = #if js "<br/>" #else "\n" #end;
-		tab = #if js "&nbsp;" #else " " #end;
+		newline = "\n";
+		tab = " ";
 	}
 
 	override function printReport()
@@ -93,10 +97,3 @@ class CoveragePrintClient extends mcover.coverage.client.PrintClient
 		Tester.print(newline + output);
 	}
 }
-
-#if air
-class AIRRunnerReporter extends tink.testrunner.Reporter.BasicReporter
-{
-	override function println(v : String) flash.Lib.trace(v);
-}
-#end

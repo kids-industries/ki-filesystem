@@ -4,10 +4,6 @@ import haxe.macro.Expr;
 import haxe.extern.EitherType;
 import haxe.io.Path;
 
-#if (!air || macro)
-import sys.FileSystem;
-#end
-
 using StringTools;
 
 #if (!macro && air)
@@ -185,7 +181,12 @@ class File
 		if(Path.isAbsolute(p))
 			throwError('Input path ($p) is already absolute. Only relative path can be resolved into absolute paths.');
 
-		return new File(FileSystem.absolutePath(p));
+		#if (!macro && phantomjs)
+		return new File(js.phantomjs.FileSystem.absolute(p));
+		#else
+		return new File(sys.FileSystem.absolutePath(p));
+		#end
+
 		#end
 	}
 
@@ -223,7 +224,13 @@ class File
 			_flFile.copyTo(dest._flFile, false);
 			#else
 			dest.getParent().createDirectory(true);
+
+			#if (!macro && phantomjs)
+			js.phantomjs.FileSystem.copy(path, dest.path);
+			#else
 			sys.io.File.copy(path, dest.path);
+			#end
+
 			#end
 		}
 		else
@@ -267,11 +274,16 @@ class File
 	{
 		#if (!macro && air)
 		_flFile.moveTo(dest._flFile, overwrite);
+		#elseif (!macro && phantomjs)
+		// Unable to move directories
+		//js.phantomjs.FileSystem.move(path, dest.path);
+		// Using copyTo instead
+		copyTo(dest, overwrite);
 		#else
 		if(overwrite && dest.exists)
 			dest.delete();
 
-		FileSystem.rename(path, dest.path);
+		sys.FileSystem.rename(path, dest.path);
 		#end
 	}
 
@@ -287,6 +299,8 @@ class File
 		{
 			#if (!macro && air)
 			_flFile.deleteDirectory(true);
+			#elseif (!macro && phantomjs)
+			js.phantomjs.FileSystem.removeTree(path);
 			#else
 			var files : Array<File> = getDirectoryListing(false);
 
@@ -294,15 +308,17 @@ class File
 			while(files.length > 0)
 				files.pop().delete();
 
-			FileSystem.deleteDirectory(path);
+			sys.FileSystem.deleteDirectory(path);
 			#end
 		}
 		else
 		{
 			#if (!macro && air)
 			_flFile.deleteFile();
+			#elseif (!macro && phantomjs)
+			js.phantomjs.FileSystem.remove(path);
 			#else
-			FileSystem.deleteFile(path);
+			sys.FileSystem.deleteFile(path);
 			#end
 		}
 	}
@@ -324,8 +340,10 @@ class File
 			{
 				#if (!macro && air)
 				_flFile.createDirectory();
+				#elseif (!macro && phantomjs)
+				js.phantomjs.FileSystem.makeDirectory(path);
 				#else
-				FileSystem.createDirectory(path);
+				sys.FileSystem.createDirectory(path);
 				#end
 			}
 			else
@@ -344,21 +362,31 @@ class File
 		if(!isDirectory)
 			throwError('Can\'t get directory listing on a file: $path');
 
-		var paths : Array<String>;
+		var paths : Array<String> = [];
 		var files : Array<File> = [];
 
 		#if (!macro && air)
-		paths = [];
 		var ff : Array<FlashFile> = _flFile.getDirectoryListing();
 		var iL : Int = ff.length;
 		for(i in 0...iL)
 			paths.push(ff[i].url.urlDecode());
 		#else
-		paths = FileSystem.readDirectory(path);
 
-		var iL : Int = paths.length;
-		for(i in 0...iL)
-			paths[i] = Path.join([path, paths[i]]);
+		var rawPaths : Array<String> =
+		#if (!macro && phantomjs)
+		js.phantomjs.FileSystem.list(path);
+		#else
+		sys.FileSystem.readDirectory(path);
+		#end
+
+		for(p in rawPaths)
+		{
+			// Exclude current dir and parent dir, if they are included.
+			if(p == './' || p == '../' || p == '.' || p == '..')
+				continue;
+
+			paths.push(Path.join([path, p]));
+		}
 		#end
 
 		var iL : Int = paths.length;
@@ -405,8 +433,10 @@ class File
 	{
 		#if (!macro && air)
 		return _flFile.exists;
+		#elseif (!macro && phantomjs)
+		return js.phantomjs.FileSystem.exists(path);
 		#else
-		return FileSystem.exists(path);
+		return sys.FileSystem.exists(path);
 		#end
 	}
 
@@ -417,8 +447,10 @@ class File
 
 		#if (!macro && air)
 		return _flFile.isDirectory;
+		#elseif (!macro && phantomjs)
+		return js.phantomjs.FileSystem.isDirectory(path);
 		#else
-		return FileSystem.isDirectory(path);
+		return sys.FileSystem.isDirectory(path);
 		#end
 	}
 

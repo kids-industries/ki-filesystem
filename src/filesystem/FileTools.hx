@@ -1,6 +1,6 @@
 package filesystem;
 
-private typedef BytesType = #if (sys || nodejs || macro) haxe.io.Bytes #else flash.utils.ByteArray #end;
+private typedef BytesType = #if (sys || nodejs || phantomjs || macro) haxe.io.Bytes #else flash.utils.ByteArray #end;
 
 class FileTools
 {
@@ -11,6 +11,8 @@ class FileTools
 	{
 		#if (sys || nodejs || macro)
 		return sys.io.File.getBytes(file.path);
+		#elseif phantomjs
+		return haxe.io.Bytes.ofString(readString(file));
 		#else
 		var bytes = new flash.utils.ByteArray();
 
@@ -32,6 +34,8 @@ class FileTools
 	{
 		#if (sys || nodejs || macro)
 		return sys.io.File.getContent(file.path);
+		#elseif phantomjs
+		return js.phantomjs.FileSystem.read(file.path);
 		#else
 		var bytes = read(file);
 		bytes.position = 0;
@@ -46,6 +50,8 @@ class FileTools
 	{
 		#if (sys || nodejs || macro)
 		sys.io.File.saveBytes(file.path, bytes);
+		#elseif phantomjs
+		writeString(file, bytes.toString());
 		#else
 		var stream = new flash.filesystem.FileStream();
 		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.WRITE);
@@ -61,6 +67,8 @@ class FileTools
 	{
 		#if (sys || nodejs || macro)
 		sys.io.File.saveContent(file.path, data);
+		#elseif phantomjs
+		js.phantomjs.FileSystem.write(file.path, data, 'w');
 		#else
 		var stream = new flash.filesystem.FileStream();
 		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.WRITE);
@@ -80,8 +88,8 @@ class FileTools
 		var output = sys.io.File.append(file.path, true);
 		output.write(bytes);
 		output.close();
-		#elseif nodejs
-		appendString(file, bytes.getString(0, bytes.length));
+		#elseif (nodejs || phantomjs)
+		appendString(file, bytes.toString());
 		#else
 		var stream = new flash.filesystem.FileStream();
 		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.APPEND);
@@ -103,6 +111,8 @@ class FileTools
 		output.close();
 		#elseif nodejs
 		js.node.Fs.appendFileSync(file.path, data);
+		#elseif phantomjs
+		js.phantomjs.FileSystem.write(file.path, data, 'a');
 		#else
 		var stream = new flash.filesystem.FileStream();
 		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.APPEND);

@@ -1,0 +1,10 @@
+################################################
+## PHANTOMJS
+################################################
+
+-D phantomjs
+
+-lib phantomjs
+
+-js bin/phantomjs/Tester.js
+-cmd phantomjs bin/phantomjs/Tester.js

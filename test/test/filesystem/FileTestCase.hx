@@ -3,9 +3,10 @@ package test.filesystem;
 import filesystem.File;
 import haxe.io.Path;
 import tink.CoreApi.Noise;
+import tink.testrunner.Case.BasicCase;
 import tink.unit.AssertionBuffer;
 
-class FileTestCase
+class FileTestCase extends BasicCase
 {
 	private static inline var ROOT : String = #if air 'app:/' + #end 'test-data';
 
@@ -55,9 +56,6 @@ class FileTestCase
 	private var _nonExistantSubFile : File;
 
 	private var _playground : File;
-
-	public function new()
-	{}
 
 	//--------------------------------------------------------------------------------------------------------------------------------//
 	// SETUP
@@ -804,6 +802,8 @@ class FileTestCase
 		return Sys.getCwd();
 		#elseif air
 		return "app:/";
+		#elseif phantomjs
+		return js.phantomjs.FileSystem.workingDirectory;
 		#else
 		throw "Can't get working directory of unknow platform.";
 		#end

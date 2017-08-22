@@ -1,11 +1,15 @@
 package filesystem;
 
+private typedef BytesType = #if (air || openfl) flash.utils.ByteArray #else haxe.io.Bytes #end;
+
 class FileTools
 {
-	#if (air || openfl)
-
-	public static function read(file : File) : flash.utils.ByteArray
+	/**
+	* Read file contents.
+	**/
+	public static function read(file : File) : BytesType
 	{
+		#if (air || openfl)
 		var bytes = new flash.utils.ByteArray();
 
 		var stream = new flash.filesystem.FileStream();
@@ -16,55 +20,9 @@ class FileTools
 		stream.close();
 
 		return bytes;
-	}
-
-	public static function readString(file : File) : String
-	{
-		var bytes = read(file);
-		bytes.position = 0;
-		return bytes.readUTFBytes(bytes.length);
-	}
-
-	public static function write(file : File, bytes : flash.utils.ByteArray) : Void
-	{
-		var stream = new flash.filesystem.FileStream();
-		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.WRITE);
-		stream.writeBytes(bytes);
-		stream.close();
-	}
-
-	public static function writeString(file : File, data : String) : Void
-	{
-		var stream = new flash.filesystem.FileStream();
-		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.WRITE);
-		stream.writeUTFBytes(data);
-		stream.close();
-	}
-
-	public static function append(file : File, bytes : flash.utils.ByteArray) : Void
-	{
-		var stream = new flash.filesystem.FileStream();
-		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.APPEND);
-		stream.writeBytes(bytes);
-		stream.close();
-	}
-
-	public static function appendString(file : File, data : String) : Void
-	{
-		var stream = new flash.filesystem.FileStream();
-		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.APPEND);
-		stream.writeUTFBytes(data);
-		stream.close();
-	}
-
-	#else
-
-	/**
-	* Read file contents.
-	**/
-	public static function read(file : File) : haxe.io.Bytes
-	{
+		#else
 		return sys.io.File.getBytes(file.path);
+		#end
 	}
 
 	/**
@@ -72,15 +30,28 @@ class FileTools
 	**/
 	public static function readString(file : File) : String
 	{
+		#if (air || openfl)
+		var bytes = read(file);
+		bytes.position = 0;
+		return bytes.readUTFBytes(bytes.length);
+		#else
 		return sys.io.File.getContent(file.path);
+		#end
 	}
 
 	/**
 	* Write file contents.
 	**/
-	public static function write(file : File, bytes : haxe.io.Bytes) : Void
+	public static function write(file : File, bytes : BytesType) : Void
 	{
+		#if (air || openfl)
+		var stream = new flash.filesystem.FileStream();
+		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.WRITE);
+		stream.writeBytes(bytes);
+		stream.close();
+		#else
 		sys.io.File.saveBytes(file.path, bytes);
+		#end
 	}
 
 	/**
@@ -88,7 +59,14 @@ class FileTools
 	**/
 	public static function writeString(file : File, data : String) : Void
 	{
+		#if (air || openfl)
+		var stream = new flash.filesystem.FileStream();
+		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.WRITE);
+		stream.writeUTFBytes(data);
+		stream.close();
+		#else
 		sys.io.File.saveContent(file.path, data);
+		#end
 	}
 
 	/**
@@ -96,9 +74,14 @@ class FileTools
 	*
 	* Non-existant file will be created.
 	**/
-	public static function append(file : File, bytes : haxe.io.Bytes) : Void
+	public static function append(file : File, bytes : BytesType) : Void
 	{
-		#if nodejs
+		#if (air || openfl)
+		var stream = new flash.filesystem.FileStream();
+		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.APPEND);
+		stream.writeBytes(bytes);
+		stream.close();
+		#elseif nodejs
 		appendString(file, bytes.getString(0, bytes.length));
 		#else
 		var output = sys.io.File.append(file.path, true);
@@ -114,7 +97,12 @@ class FileTools
 	**/
 	public static function appendString(file : File, data : String) : Void
 	{
-		#if nodejs
+		#if (air || openfl)
+		var stream = new flash.filesystem.FileStream();
+		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.APPEND);
+		stream.writeUTFBytes(data);
+		stream.close();
+		#elseif nodejs
 		js.node.Fs.appendFileSync(file.path, data);
 		#else
 		var output = sys.io.File.append(file.path, true);
@@ -122,6 +110,4 @@ class FileTools
 		output.close();
 		#end
 	}
-
-	#end
 }

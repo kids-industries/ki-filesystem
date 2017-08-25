@@ -372,12 +372,7 @@ class File
 			paths.push(ff[i].url.urlDecode());
 		#else
 
-		var rawPaths : Array<String> =
-		#if (!macro && phantomjs)
-		js.phantomjs.FileSystem.list(path);
-		#else
-		sys.FileSystem.readDirectory(path);
-		#end
+		var rawPaths : Array<String> = #if (!macro && phantomjs) js.phantomjs.FileSystem.list(path); #else sys.FileSystem.readDirectory(path); #end
 
 		for(p in rawPaths)
 		{

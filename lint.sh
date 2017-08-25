@@ -1,3 +1,3 @@
 #!/bin/sh -xe
 
-haxelib run checkstyle -s $1
+haxelib run checkstyle -s $*

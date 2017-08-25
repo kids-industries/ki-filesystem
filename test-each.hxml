@@ -5,7 +5,7 @@
 
 -lib tink_core
 -lib tink_unittest
--lib tink_testrunner
+-lib tink_testrunner:0.6.2
 -lib mcover
 -lib compiletime
 --macro mcover.MCover.coverage(['filesystem'], ['src'], null)

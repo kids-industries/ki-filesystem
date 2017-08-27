@@ -283,6 +283,11 @@ class FileTestCase extends BasicCase
 		buffer.assert(isEqual(Path.join([ROOT, SUB_FOLDER_01, SUB_FILE_TXT]), _subFile01.path));
 		buffer.assert(isEqual(Path.join([ROOT, SUB_FOLDER_02, SUB_FILE_TXT]), _subFile02.path));
 
+		buffer.assert(isEqual('C:/folder/filename.txt', new File('C:/folder/filename.txt').path));
+
+		// Should we convert seperators?
+		//buffer.assert(isEqual('C:\\folder\\filename.txt', new File('C:/folder/filename.txt').path));
+
 		return buffer.done();
 	}
 

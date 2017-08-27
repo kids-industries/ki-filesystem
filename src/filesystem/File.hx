@@ -108,6 +108,11 @@ class File
 		// Ensure path is escaped of spaces
 		// path = PathUtil.escapeSpaces(path);
 
+		#if (!macro && air)
+		// Ensure AIR paths don't start with a file protocol
+		path = path.replace('file://', '');
+		#end
+
 		var p = new Path(path);
 		this.name = p.file;
 		this.dir = p.dir;
@@ -126,7 +131,8 @@ class File
 
 		_flFile = new FlashFile(path);
 
-		this.path = _flFile.url.urlDecode();
+		// AIR adds file:/// to absolute paths, remove it
+		this.path = _flFile.url.urlDecode().replace('file:///', '');
 
 		if(proto != null && this.dir == '$proto:')
 			this.dir = null;

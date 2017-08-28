@@ -4,7 +4,7 @@ A simple library that abstracts common file operations.
 
 ## Supported Targets / Runtimes
 
-- Adobe AIR
+- Adobe AIR (requires `-D air`)
 - CPP
 - C#
 - Java

@@ -34,6 +34,9 @@ mkdir $NAME
 
 rsync -ravc ./src $NAME/
 rsync -avc ./haxelib.json $NAME/
+rsync -avc ./README.md $NAME/
+rsync -avc ./CHANGELOG.md $NAME/
+rsync -avc ./LICENSE.md $NAME/
 
 zip -r $TARGET $NAME
 

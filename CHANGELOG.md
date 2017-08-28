@@ -1,3 +1,19 @@
+# 1.1.2
+
+- Include `md` files into packing script
+
+# 1.1.1
+
+- Fixed `air` protocol error
+
+# 1.1.0
+
+- Fixed nodejs append file
+- Unified `FileTools` implementation
+- Fixed `FileTools` openfl target
+- Added `phantomjs` support
+- Bumped `tink_testrunner` version
+
 # 1.0.3
 
 - Fixed `FileTools` compile with `openfl` target choosing wrong implementation

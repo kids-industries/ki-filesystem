@@ -8,9 +8,7 @@
 
 # 1.1.0
 
-- Fixed nodejs append file
-- Unified `FileTools` implementation
-- Fixed `FileTools` openfl target
+- Fixed `nodejs` append file
 - Added `phantomjs` support
 - Bumped `tink_testrunner` version
 

@@ -17,9 +17,7 @@ declare -a ERROR_TARGETS
 
 VERSION=$(cat haxelib.json | jq '.version' -r)
 GIT=$(cat haxelib.json | jq '.url' -r)
-GIT_PATH="$(echo $GIT | grep / | cut -d/ -f5-)"
-REPO_ID=${GIT_PATH%/*}
-SOURCE_PATH="https://phabricator.kidsindustries.com/diffusion/$REPO_ID/browse/master/src/"
+SOURCE_PATH="$GIT/blob/$VERSION/src/"
 
 function build()
 {
@@ -52,7 +50,7 @@ fi
 haxelib run dox \
 	--input-path docs \
 	--output-path docs/pages \
-	--include filesystem \
+	--include "^filesystem" \
 	--define version "$VERSION" \
 	--define source-path "$SOURCE_PATH"
 

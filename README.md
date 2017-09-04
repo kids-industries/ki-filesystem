@@ -48,3 +48,9 @@ var contents = file.readString();
 trace(contents); 
 
 ```
+
+## API Docs
+
+View the latest: https://www.kidsindustries.com/open-source/ki-filesystem/latest/docs/index.html
+
+Or replace `/latest/` -> `/1.1.3/` in the url to view a specific version.

@@ -1,3 +1,8 @@
+# 1.2.0
+
+- Added `getModificationDate`
+- Added `getSize`
+
 # 1.1.2
 
 - Include `md` files into packing script

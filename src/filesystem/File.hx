@@ -474,20 +474,14 @@ class File
 	// ERRORS
 	//--------------------------------------------------------------------------------------------------------------------------------//
 	/**
-	* Throw and error with a message. Generic prefix will be added.
+	* Throw an error with a message. Generic prefix will be added.
 	**/
 	private static macro function throwError(msg : String) : Expr
 	{
+		var prefix : String = '[${Type.getClassName(File)}] ';
 		return macro {
-			throw '[${Type.getClassName(File)}] $msg';
+			throw $v{prefix} + '${msg}';
 		};
 	}
 
-	/**
-	* Not Implemented Error.
-	**/
-	private static inline function throwNotImplemented(msg : String) : Void
-	{
-		throwError('Not Implemented: $msg');
-	}
 }

@@ -1,5 +1,6 @@
 package filesystem;
 
+import haxe.macro.Expr;
 private typedef BytesType = #if (sys || nodejs || phantomjs || macro) haxe.io.Bytes #else flash.utils.ByteArray #end;
 
 class FileTools
@@ -119,5 +120,68 @@ class FileTools
 		stream.writeUTFBytes(data);
 		stream.close();
 		#end
+	}
+
+	/**
+	* Read file last modified time.
+	**/
+	public static function getModificationDate(file : File) : Date
+	{
+		if(!file.exists) throwOperationNotAllowedOnNonexistant(file);
+
+		#if (sys || nodejs || macro)
+		return sys.FileSystem.stat(file.path).mtime;
+		#elseif phantomjs
+		return js.Lib.require('fs').lastModified(file.path);
+		#else
+		return @:privateAccess file._flFile.modificationDate;
+		#end
+	}
+
+	/**
+	* Read file or directory size.
+	**/
+	public static function getSize(file : File) : Int
+	{
+		if(file.isDirectory)
+		{
+			var total = 0;
+			for(file in file.getDirectoryListing())
+			total += getSize(file);
+
+			return total;
+		}
+
+		if(!file.exists) throwOperationNotAllowedOnNonexistant(file);
+
+		#if (sys || nodejs || macro)
+		return sys.FileSystem.stat(file.path).size;
+		#elseif phantomjs
+		return js.phantomjs.FileSystem.size(file.path);
+		#else
+		return cast @:privateAccess file._flFile.size;
+		#end
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	// ERRORS
+	//--------------------------------------------------------------------------------------------------------------------------------//
+	/**
+	* Throw an error with a message. Generic prefix will be added.
+	**/
+	private static macro function throwError(msg : String) : Expr
+	{
+		var prefix : String = '[${Type.getClassName(File)}] ';
+		return macro {
+			throw $v{prefix} + '${msg}';
+		};
+	}
+
+	/**
+	* Throw error for operation attempt on non-existant file.
+	**/
+	private static inline function throwOperationNotAllowedOnNonexistant(file : File) : Void
+	{
+		throwError('Operation not allowed on non-existant file: $file');
 	}
 }

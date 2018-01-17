@@ -15,6 +15,7 @@ class FileToolsTestCase extends BasicCase
 	private static inline var LOREM_IPSUM_TXT : String = LOREM_IPSUM + '.' + TXT;
 
 	private static inline var TXT : String = 'txt';
+	private static inline var SUB_FOLDER_01 : String = 'sub-folder-01';
 
 	private var _root : File;
 
@@ -179,6 +180,107 @@ class FileToolsTestCase extends BasicCase
 
 		buffer.assert(isNotNull(target));
 		buffer.assert(isEqual(target, sourceTxt + sourceTxt));
+
+		return buffer.done();
+	}
+
+	public function testGetModificationDate()
+	{
+		_playground.createDirectory(true);
+
+		var buffer = new AssertionBuffer();
+
+		var targetFile = _playground.resolvePath('modtime.txt');
+
+		//TODO: Python date handling
+		targetFile.writeString('modtimetest');
+		var modNowDate : Date = Date.now();
+
+		buffer.assert(isEqual(targetFile.getModificationDate().toString(), modNowDate.toString()));
+
+		return buffer.done();
+	}
+
+	public function testGetModificationDate_NonExistantFile()
+	{
+		_playground.createDirectory(true);
+
+		var buffer = new AssertionBuffer();
+		var isNoFileError = false;
+
+		var targetFile = _playground.resolvePath('nofile.txt');
+
+		try
+		{
+			targetFile.getModificationDate();
+		}
+		catch(err : Dynamic)
+		{
+			if(err != null) isNoFileError = true;
+		}
+
+		buffer.assert(isTrue(isNoFileError));
+
+		return buffer.done();
+	}
+
+	public function testGetModificationDate_Directory()
+	{
+		_playground.createDirectory(true);
+		var modNowDate : Date = Date.now();
+
+		var buffer = new AssertionBuffer();
+
+		buffer.assert(isEqual(_playground.getModificationDate().toString(), modNowDate.toString()));
+
+		return buffer.done();
+	}
+
+	public function testGetSize()
+	{
+		var buffer = new AssertionBuffer();
+
+		var expectedSize : Int = 2653;
+
+		buffer.assert(isEqual(expectedSize, _loremIpsumTxt.getSize()));
+
+		return buffer.done();
+	}
+
+	public function testGetSize_NonExistantFile()
+	{
+		_playground.createDirectory(true);
+		var buffer = new AssertionBuffer();
+		var isNoFileError = false;
+
+		var targetFile = _playground.resolvePath('nofile.txt');
+		try
+		{
+			targetFile.getSize();
+		}
+		catch(err : Dynamic)
+		{
+			if(err != null) isNoFileError = true;
+		}
+
+		buffer.assert(isTrue(isNoFileError));
+
+		return buffer.done();
+	}
+
+	public function testGetSize_Directory()
+	{
+		var subFol = _root.resolvePath(SUB_FOLDER_01);
+
+		_playground.createDirectory(true);
+		_loremIpsumTxt.copyInto(_playground);
+		subFol.copyInto(_playground, true);
+
+		var buffer = new AssertionBuffer();
+
+		var expectedSize : Int = 5306;
+
+		buffer.assert(isEqual(expectedSize, _playground.getSize()));
 
 		return buffer.done();
 	}

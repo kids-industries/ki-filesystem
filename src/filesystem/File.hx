@@ -1,10 +1,12 @@
 package filesystem;
 
 import haxe.macro.Expr;
+import haxe.macro.Expr.ExprOf;
 import haxe.extern.EitherType;
 import haxe.io.Path;
 
 using StringTools;
+using filesystem.FileTools;
 
 #if (!macro && air)
 private typedef FlashFile = flash.filesystem.File;
@@ -95,7 +97,7 @@ class File
 			path = "/";
 			#end
 		}
-		#if air
+			#if air
 		else if(path.startsWith("/"))
 			path = path.substr(1);
 		#end
@@ -226,18 +228,8 @@ class File
 					dest.delete();
 			}
 
-			#if (!macro && air)
-			_flFile.copyTo(dest._flFile, false);
-			#else
-			dest.getParent().createDirectory(true);
+			rawCopy(dest);
 
-			#if (!macro && phantomjs)
-			js.phantomjs.FileSystem.copy(path, dest.path);
-			#else
-			sys.io.File.copy(path, dest.path);
-			#end
-
-			#end
 		}
 		else
 		{
@@ -271,6 +263,46 @@ class File
 			throwError('Can\'t copy into target existing file.');
 
 		copyTo(directory.resolvePath(file), overwrite);
+	}
+
+	/**
+	* Copies directory contents to the directory specified by the dest parameter.
+	* overwriteIfNewer will only replace existing files if they are newer.
+	* forceOverwrite always overWrites existing dest directory contents.
+	**/
+	public function mergeTo(dest : File, overwriteIfNewer : Bool = true, forceOverwrite : Bool = false) : Void
+	{
+		if(!isDirectory)
+		{
+			if(dest.exists)
+			{
+				if(forceOverwrite || (overwriteIfNewer && (getModificationDate().getTime() > dest.getModificationDate().getTime())))
+				{
+					dest.delete();
+					rawCopy(dest);
+				}
+			}
+			else
+				rawCopy(dest);
+		}
+		else
+		{
+			dest.createDirectory();
+
+			var files : Array<File> = getDirectoryListing();
+			var basePath : String = path;
+			var targetBasePath : String = dest.path;
+
+			var iL : Int = files.length;
+			for(i in 0...iL)
+			{
+				var currentFile : File = files[i];
+				var targetPath : String = currentFile.toString().replace(basePath, targetBasePath);
+				var targetFile : File = new File(targetPath);
+
+				currentFile.mergeTo(targetFile, overwriteIfNewer, forceOverwrite);
+			}
+		}
 	}
 
 	/**
@@ -470,18 +502,34 @@ class File
 		return Path.join([path].concat(pathOrSegments));
 	}
 
+	/**
+	* Copy to dest
+	**/
+	private inline function rawCopy(dest : File) : Void
+	{
+		#if (!macro && air)
+		_flFile.copyTo(dest._flFile, false);
+		#else
+		dest.getParent().createDirectory(true);
+
+		#if (!macro && phantomjs)
+		js.phantomjs.FileSystem.copy(path, dest.path);
+		#else
+		sys.io.File.copy(path, dest.path);
+		#end
+
+		#end
+	}
+
 	//--------------------------------------------------------------------------------------------------------------------------------//
 	// ERRORS
 	//--------------------------------------------------------------------------------------------------------------------------------//
 	/**
 	* Throw an error with a message. Generic prefix will be added.
 	**/
-	private static macro function throwError(msg : String) : Expr
+	private static inline macro function throwError(msg : ExprOf<String>) : Expr
 	{
-		var prefix : String = '[${Type.getClassName(File)}] ';
-		return macro {
-			throw $v{prefix} + '${msg}';
-		};
+		return macro { @:privateAccess FileTools.throwError($msg); };
 	}
 
 }

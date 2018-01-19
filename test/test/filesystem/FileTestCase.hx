@@ -6,6 +6,8 @@ import tink.CoreApi.Noise;
 import tink.testrunner.Case.BasicCase;
 import tink.unit.AssertionBuffer;
 
+using filesystem.FileTools;
+
 class FileTestCase extends BasicCase
 {
 	private static inline var ROOT : String = #if air 'app:/' + #end 'test-data';
@@ -763,6 +765,50 @@ class FileTestCase extends BasicCase
 
 		buffer.assert(isFalse(folder.exists));
 		buffer.assert(isTrue(folderTarget.exists));
+
+		return buffer.done();
+	}
+
+	public function testMergeTo()
+	{
+		var buffer = new AssertionBuffer();
+
+		// Create a working copy first
+		_playground.createDirectory();
+		_root.copyTo(_playground);
+
+		var playSubfolder01 = _playground.resolvePath(SUB_FOLDER_01);
+		var newerFile = playSubfolder01.resolvePath(SUB_FILE_TXT);
+		var destFolder = _playground.resolvePath(SUB_FOLDER_02);
+		var fromFolder = _playground.resolvePath('fromFolder');
+		fromFolder.createDirectory();
+		_playground.resolvePath(LOREM_IPSUM_ZIP).copyInto(fromFolder);
+
+		//merge directories
+		var filesToMerge = fromFolder.resolvePath(LOREM_IPSUM_ZIP).name + destFolder.resolvePath(SUB_FILE_TXT).name;
+		fromFolder.mergeTo(destFolder);
+
+		var mergedFiles = '';
+		for(file in destFolder.getDirectoryListing())
+			mergedFiles += file.name;
+
+		buffer.assert(isEqual(filesToMerge, mergedFiles));
+
+		#if !air
+		// merge - don't overwrite if newer
+		playSubfolder01.mergeTo(_subFolder02, false);
+		buffer.assert(isFalse(_subFile02.getModificationDate().getTime() >= newerFile.getModificationDate().getTime()));
+
+		// merge - overwrite if newer
+		playSubfolder01.mergeTo(_subFolder02);
+		buffer.assert(isEqual(newerFile.getModificationDate().getTime(), _subFile02.getModificationDate().getTime()));
+		buffer.assert(isEqual(newerFile.read().toString(), _subFile02.read().toString()));
+		#end
+
+		// merge - force overwrite
+		newerFile.writeString('force-overwrite');
+		playSubfolder01.mergeTo(destFolder, false, true);
+		buffer.assert(isEqual(destFolder.resolvePath(SUB_FILE_TXT).read().toString(), newerFile.read().toString()));
 
 		return buffer.done();
 	}

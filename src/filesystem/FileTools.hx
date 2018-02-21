@@ -20,7 +20,7 @@ class FileTools
 		var stream = new flash.filesystem.FileStream();
 		stream.open(@:privateAccess file._flFile, flash.filesystem.FileMode.READ);
 
-		while (stream.bytesAvailable > 0)
+		while(stream.bytesAvailable > 0)
 			stream.readBytes(bytes, cast stream.position, cast stream.bytesAvailable);
 		stream.close();
 
@@ -147,7 +147,7 @@ class FileTools
 		{
 			var total = 0;
 			for(file in file.getDirectoryListing())
-			total += getSize(file);
+				total += getSize(file);
 
 			return total;
 		}

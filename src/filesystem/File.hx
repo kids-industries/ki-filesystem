@@ -97,7 +97,7 @@ class File
 			path = "/";
 			#end
 		}
-			#if air
+		#if air
 		else if(path.startsWith("/"))
 			path = path.substr(1);
 		#end
@@ -213,37 +213,37 @@ class File
 	/**
 	* Copies the file or directory at the location specified by this File object
 	* to the location specified by the dest parameter. The copy process creates
-	* any required parent directories (if possible). When overwriting files
-	* using copyTo(), the file attributes are also overwritten.
+	* any required parent directories (if possible).
+	*
+	* Optionally, destination files will only be overwritten if overwriteIfNewer is
+	* set to true. Setting overwrite to true will ALWAYS overwrite the destination.
+	*
+	* If the destination file exists and neither overwrite flag is true, nothing will happen.
 	**/
-	public function copyTo(dest : File, overwrite : Bool = false) : Void
+	public function copyTo(dest : File, overwrite : Bool = false, overwriteIfNewer : Bool = false) : Void
 	{
-		if(!isDirectory)
+		if(isDirectory)
 		{
-			if(dest.exists)
-			{
-				if(!overwrite)
-					throwError('Unable to copy onto existing file: ${dest.path}.');
-				else
-					dest.delete();
-			}
-
-			rawCopy(dest);
-
+			var files : Array<File> = getDirectoryListing();
+			for(file in files)
+				file.copyTo(
+					new File(file.path.replace(path, dest.path)),
+					overwrite,
+					overwriteIfNewer
+				);
 		}
 		else
 		{
-			var files : Array<File> = getDirectoryListing();
-
-			var iL : Int = files.length;
-			for(i in 0...iL)
+			if(dest.exists)
 			{
-				var child : File = files[i];
-				var targetPath : String = child.path.replace(path, dest.path);
-				var targetFile : File = new File(targetPath);
-
-				child.copyTo(targetFile, overwrite);
+				if(overwrite || (overwriteIfNewer && getModificationDate().getTime() > dest.getModificationDate().getTime()))
+				{
+					dest.delete();
+					rawCopy(dest);
+				}
 			}
+			else
+				rawCopy(dest);
 		}
 	}
 
@@ -263,46 +263,6 @@ class File
 			throwError('Can\'t copy into target existing file.');
 
 		copyTo(directory.resolvePath(file), overwrite);
-	}
-
-	/**
-	* Copies directory contents to the directory specified by the dest parameter.
-	* overwriteIfNewer will only replace existing files if they are newer.
-	* forceOverwrite always overWrites existing dest directory contents.
-	**/
-	public function mergeTo(dest : File, overwriteIfNewer : Bool = true, forceOverwrite : Bool = false) : Void
-	{
-		if(!isDirectory)
-		{
-			if(dest.exists)
-			{
-				if(forceOverwrite || (overwriteIfNewer && (getModificationDate().getTime() > dest.getModificationDate().getTime())))
-				{
-					dest.delete();
-					rawCopy(dest);
-				}
-			}
-			else
-				rawCopy(dest);
-		}
-		else
-		{
-			dest.createDirectory();
-
-			var files : Array<File> = getDirectoryListing();
-			var basePath : String = path;
-			var targetBasePath : String = dest.path;
-
-			var iL : Int = files.length;
-			for(i in 0...iL)
-			{
-				var currentFile : File = files[i];
-				var targetPath : String = currentFile.toString().replace(basePath, targetBasePath);
-				var targetFile : File = new File(targetPath);
-
-				currentFile.mergeTo(targetFile, overwriteIfNewer, forceOverwrite);
-			}
-		}
 	}
 
 	/**

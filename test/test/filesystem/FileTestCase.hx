@@ -637,24 +637,26 @@ class FileTestCase extends BasicCase
 
 		// CREATE
 		var file = _playground.resolvePath(LOREM_IPSUM_TXT);
-		var subFolder = _playground.resolvePath(SUB_FOLDER_01);
-		var subFile = subFolder.resolvePath(SUB_FILE_TXT);
+		var subFolder01 = _playground.resolvePath(SUB_FOLDER_01);
+		var subFolder02 = _playground.resolvePath(SUB_FOLDER_02);
+		var subFile01 = subFolder01.resolvePath(SUB_FILE_TXT);
+		var subFile02 = subFolder02.resolvePath(SUB_FILE_TXT);
 
 		buffer.assert(isFalse(_playground.exists));
 		buffer.assert(isFalse(file.exists));
-		buffer.assert(isFalse(subFolder.exists));
-		buffer.assert(isFalse(subFile.exists));
+		buffer.assert(isFalse(subFolder01.exists));
+		buffer.assert(isFalse(subFile01.exists));
 
 		// Single file copyTo
 		_loremIpsumTxt.copyTo(file);
-		_subFile01.copyTo(subFile);
+		_subFile01.copyTo(subFile01);
 
 		buffer.assert(isTrue(_playground.exists));
 		buffer.assert(isTrue(_playground.isDirectory));
 		buffer.assert(isTrue(file.exists));
-		buffer.assert(isTrue(subFolder.exists));
-		buffer.assert(isTrue(subFolder.isDirectory));
-		buffer.assert(isTrue(subFile.exists));
+		buffer.assert(isTrue(subFolder01.exists));
+		buffer.assert(isTrue(subFolder01.isDirectory));
+		buffer.assert(isTrue(subFile01.exists));
 
 		// Recursive copyTo
 		_root.copyTo(_playground, true);
@@ -675,7 +677,19 @@ class FileTestCase extends BasicCase
 		for(path in paths)
 			buffer.assert(isTrue(_playground.resolvePath(path).exists));
 
-		buffer.assert(isTrue(_playground.resolvePath(SUB_FOLDER_02).isDirectory));
+		buffer.assert(isTrue(subFolder02.isDirectory));
+
+		// Test overwriteIfNewer
+		var expectedText = "Modified!!";
+
+		file.writeString("Modified!!");
+		_root.copyTo(_playground, false, true);
+		buffer.assert(isEqual(file.readString(), expectedText));
+
+		// FIXME: Re-enable test once we have setModificationDate
+		/*subFile01.writeString(expectedText);
+		subFolder01.copyTo(subFolder02, false, true);
+		buffer.assert(isEqual(subFile02.readString(), expectedText));*/
 
 		// TODO: Validate contents of the copied files
 
@@ -765,50 +779,6 @@ class FileTestCase extends BasicCase
 
 		buffer.assert(isFalse(folder.exists));
 		buffer.assert(isTrue(folderTarget.exists));
-
-		return buffer.done();
-	}
-
-	public function testMergeTo()
-	{
-		var buffer = new AssertionBuffer();
-
-		// Create a working copy first
-		_playground.createDirectory();
-		_root.copyTo(_playground);
-
-		var playSubfolder01 = _playground.resolvePath(SUB_FOLDER_01);
-		var newerFile = playSubfolder01.resolvePath(SUB_FILE_TXT);
-		var destFolder = _playground.resolvePath(SUB_FOLDER_02);
-		var fromFolder = _playground.resolvePath('fromFolder');
-		fromFolder.createDirectory();
-		_playground.resolvePath(LOREM_IPSUM_ZIP).copyInto(fromFolder);
-
-		//merge directories
-		var filesToMerge = fromFolder.resolvePath(LOREM_IPSUM_ZIP).name + destFolder.resolvePath(SUB_FILE_TXT).name;
-		fromFolder.mergeTo(destFolder);
-
-		var mergedFiles = '';
-		for(file in destFolder.getDirectoryListing())
-			mergedFiles += file.name;
-
-		buffer.assert(isEqual(filesToMerge, mergedFiles));
-
-		#if !air
-		// merge - don't overwrite if newer
-		playSubfolder01.mergeTo(_subFolder02, false);
-		buffer.assert(isFalse(_subFile02.getModificationDate().getTime() >= newerFile.getModificationDate().getTime()));
-
-		// merge - overwrite if newer
-		playSubfolder01.mergeTo(_subFolder02);
-		buffer.assert(isEqual(newerFile.getModificationDate().getTime(), _subFile02.getModificationDate().getTime()));
-		buffer.assert(isEqual(newerFile.read().toString(), _subFile02.read().toString()));
-		#end
-
-		// merge - force overwrite
-		newerFile.writeString('force-overwrite');
-		playSubfolder01.mergeTo(destFolder, false, true);
-		buffer.assert(isEqual(destFolder.resolvePath(SUB_FILE_TXT).read().toString(), newerFile.read().toString()));
 
 		return buffer.done();
 	}

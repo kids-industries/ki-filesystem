@@ -1,3 +1,7 @@
+# 1.2.1
+
+- Added `overwriteIfNewer` to `copyTo`
+
 # 1.2.0
 
 - Added `getModificationDate`

@@ -38,7 +38,9 @@ rsync -avc ./README.md $NAME/
 rsync -avc ./CHANGELOG.md $NAME/
 rsync -avc ./LICENSE.md $NAME/
 
-zip -r $TARGET $NAME
+cd "$NAME"
+zip -r ../$TARGET ./
+cd ..
 
 if [ -d "$NAME" ]; then
     rm -rf "$NAME"

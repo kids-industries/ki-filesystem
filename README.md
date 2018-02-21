@@ -1,6 +1,13 @@
 # KI-filesystem
 
-A simple library that abstracts common file operations.
+A simple library that abstracts common file operations such as:
+
+- Checking existence
+- Recursive copy/delete
+- Recursive directory listings
+- Moving/Renaming
+- Read/Write/Append
+- See API docs for more
 
 ## Supported Targets / Runtimes
 
@@ -21,6 +28,32 @@ A simple library that abstracts common file operations.
 - HashLink (unable to get runtime working)
 - Lua (partial - some failed tests)
 
+## Install
+
+### From haxelib for Production
+
+```
+haxelib install ki-filesystem
+
+```
+
+### From git for Development
+
+```
+# Clone repo
+git clone <repo-uri>
+
+# Step into repo
+cd ki-filesystem
+
+# Activate haxelib dev mode
+haxelib dev ki-filesystem $(pwd)
+
+# Deactivate haxelib dev mode
+haxelib dev ki-filesystem
+
+```
+
 ## Sample Usage
 
 Add these for best usage.
@@ -39,13 +72,17 @@ using filesystem.FileTools;
 // Create a file instance
 var file = new File('some.txt');
 
+trace(file.exists); // false
+
 // Write simple string contents into the file
 file.writeString('My awesome file contents!');
 
-// Read string contents into local variable
-var contents = file.readString();
+trace(file.exists); // true
+trace(file.readString()); // My awesome file contents!
 
-trace(contents); 
+file.delete();
+
+trace(file.exists); // false
 
 ```
 
